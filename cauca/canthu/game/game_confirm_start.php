@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../../check_login.php';
 
 if ($_SESSION['user']['vai_tro'] !== 'canthu') {
     header("Location: /");
+    echo "<script>alert('Bạn không có quyền truy cập trang này.'); window.location.href='dashboard_game.php';</script>";
     exit;
 }
 
