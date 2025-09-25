@@ -1,0 +1,36 @@
+Kết nối thất bại. Vui lòng kiểm tra log server.[2025-09-20 16:09:54] Start cancel_expired_deposits (expire=30m)
+[2025-09-20 16:09:54] Canceled pending deposits: 0
+[2025-09-20 16:09:54] Pending deposits remaining: 0
+[2025-09-20 16:09:54] Done
+[2025-09-20 16:30:51] Start cancel_expired_deposits (expire=30m)
+[2025-09-20 16:30:51] Canceled pending deposits: 0
+[2025-09-20 16:30:51] Pending deposits remaining: 0
+[2025-09-20 16:30:51] Done
+[2025-09-20 16:39:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-20 16:39:53] Canceled pending deposits: 0
+[2025-09-20 16:39:53] Pending deposits remaining: 0
+[2025-09-20 16:39:53] Done
+[2025-09-20 16:54:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-20 16:54:53] Canceled pending deposits: 0
+[2025-09-20 16:54:53] Pending deposits remaining: 0
+[2025-09-20 16:54:53] Done
+[2025-09-20 17:09:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-20 17:09:53] Canceled pending deposits: 0
+[2025-09-20 17:09:53] Pending deposits remaining: 0
+[2025-09-20 17:09:53] Done
+[2025-09-20 17:24:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-20 17:24:53] Canceled pending deposits: 0
+[2025-09-20 17:24:53] Pending deposits remaining: 0
+[2025-09-20 17:24:53] Done
+[2025-09-20 17:39:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-20 17:39:53] Canceled pending deposits: 0
+[2025-09-20 17:39:53] Pending deposits remaining: 0
+[2025-09-20 17:39:53] Done
+[2025-09-20 17:54:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-20 17:54:53] Canceled pending deposits: 0
+[2025-09-20 17:54:53] Pending deposits remaining: 0
+[2025-09-20 17:54:53] Done
+[2025-09-20 18:09:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-20 18:09:53] Canceled pending deposits: 0
+[2025-09-20 18:09:53] Pending deposits remaining: 0
+[2025-09-20 18:09:53] Done

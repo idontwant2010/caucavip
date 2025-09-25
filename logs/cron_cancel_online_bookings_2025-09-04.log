@@ -1,0 +1,46 @@
+[2025-09-04 13:27:40] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-04 13:27:40] No overdue online bookings.
+[2025-09-04 13:30:48] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-04 13:30:48] No overdue online bookings.
+[2025-09-04 13:31:38] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 1 candidate(s)
+[2025-09-04 13:31:38] OK booking #215 -> cancel & refund 50000đ to user #1
+[2025-09-04 13:31:38] Done. OK=1, SKIP=0, FAIL=0
+[2025-09-04 13:39:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-04 13:39:04] No overdue online bookings.
+[2025-09-04 13:49:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-04 13:49:04] No overdue online bookings.
+[2025-09-04 13:59:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-04 13:59:04] No overdue online bookings.
+[2025-09-04 14:09:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-04 14:09:04] No overdue online bookings.
+[2025-09-04 14:19:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-04 14:19:04] No overdue online bookings.
+[2025-09-04 14:28:03] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-04 14:28:03] No overdue online bookings.
+[2025-09-04 14:28:32] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-04 14:28:32] No overdue online bookings.
+[2025-09-04 14:29:03] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-04 14:29:03] No overdue online bookings.
+[2025-09-04 14:29:23] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-04 14:29:23] No overdue online bookings.
+Kết nối thất bại. Vui lòng kiểm tra log server.[2025-09-04 18:29:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-04 18:29:04] No overdue online bookings.
+[2025-09-04 19:29:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-04 19:29:04] No overdue online bookings.
+Kết nối thất bại. Vui lòng kiểm tra log server.[2025-09-04 21:29:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-04 21:29:04] No overdue online bookings.

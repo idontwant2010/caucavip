@@ -1,0 +1,11 @@
+[2025-09-24 10:15:47] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 2 candidate(s)
+[2025-09-24 10:15:47] OK booking #224 -> cancel & refund 50000đ to user #1
+[2025-09-24 10:15:47] OK booking #226 -> cancel & refund 50000đ to user #1
+[2025-09-24 10:15:47] Done. OK=2, SKIP=0, FAIL=0
+[2025-09-24 10:29:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-24 10:29:04] No overdue online bookings.
+[2025-09-24 11:29:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-24 11:29:04] No overdue online bookings.

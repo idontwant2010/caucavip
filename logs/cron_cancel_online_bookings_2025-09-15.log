@@ -1,0 +1,12 @@
+Kết nối thất bại. Vui lòng kiểm tra log server.[2025-09-15 10:40:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 6 candidate(s)
+[2025-09-15 10:40:05] OK booking #181 -> cancel & refund 50000đ to user #1
+[2025-09-15 10:40:05] OK booking #182 -> cancel & refund 50000đ to user #1
+[2025-09-15 10:40:05] OK booking #196 -> cancel & refund 50000đ to user #1
+[2025-09-15 10:40:05] OK booking #198 -> cancel & refund 50000đ to user #1
+[2025-09-15 10:40:05] OK booking #199 -> cancel & refund 50000đ to user #1
+[2025-09-15 10:40:05] OK booking #200 -> cancel & refund 50000đ to user #1
+[2025-09-15 10:40:05] Done. OK=6, SKIP=0, FAIL=0
+Kết nối thất bại. Vui lòng kiểm tra log server.[2025-09-15 16:29:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-15 16:29:04] No overdue online bookings.

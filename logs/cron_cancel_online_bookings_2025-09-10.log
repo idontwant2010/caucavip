@@ -1,0 +1,38 @@
+Kết nối thất bại. Vui lòng kiểm tra log server.[2025-09-10 12:40:59] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 1 candidate(s)
+[2025-09-10 12:47:39] OK booking #189 -> cancel & refund 50000đ to user #1
+[2025-09-10 12:47:39] Done. OK=1, SKIP=0, FAIL=0
+[2025-09-10 16:29:32] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-10 16:29:32] No overdue online bookings.
+[2025-09-10 17:29:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-10 17:29:04] No overdue online bookings.
+[2025-09-10 17:29:30] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-10 17:29:30] No overdue online bookings.
+[2025-09-10 18:29:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-10 18:29:04] No overdue online bookings.
+[2025-09-10 18:29:30] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-10 18:29:30] No overdue online bookings.
+[2025-09-10 19:29:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-10 19:29:04] No overdue online bookings.
+[2025-09-10 19:29:30] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-10 19:29:30] No overdue online bookings.
+[2025-09-10 20:29:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-10 20:29:04] No overdue online bookings.
+[2025-09-10 20:29:30] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-10 20:29:30] No overdue online bookings.
+[2025-09-10 21:29:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-10 21:29:04] No overdue online bookings.
+[2025-09-10 21:29:30] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-10 21:29:30] No overdue online bookings.
+Kết nối thất bại. Vui lòng kiểm tra log server.Kết nối thất bại. Vui lòng kiểm tra log server.Kết nối thất bại. Vui lòng kiểm tra log server.

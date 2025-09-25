@@ -1,0 +1,8 @@
+[2025-09-25 16:43:32] Start cancel_expired_deposits (expire=30m)
+[2025-09-25 16:43:32] Canceled pending deposits: 0
+[2025-09-25 16:43:32] Pending deposits remaining: 0
+[2025-09-25 16:43:32] Done
+[2025-09-25 16:54:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-25 16:54:53] Canceled pending deposits: 0
+[2025-09-25 16:54:53] Pending deposits remaining: 0
+[2025-09-25 16:54:53] Done

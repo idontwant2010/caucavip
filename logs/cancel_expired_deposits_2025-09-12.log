@@ -1,0 +1,60 @@
+Kết nối thất bại. Vui lòng kiểm tra log server.[2025-09-12 15:54:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-12 15:54:53] Canceled pending deposits: 0
+[2025-09-12 15:54:53] Pending deposits remaining: 0
+[2025-09-12 15:54:53] Done
+[2025-09-12 16:09:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-12 16:09:53] Canceled pending deposits: 0
+[2025-09-12 16:09:53] Pending deposits remaining: 0
+[2025-09-12 16:09:53] Done
+[2025-09-12 16:24:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-12 16:24:53] Canceled pending deposits: 0
+[2025-09-12 16:24:53] Pending deposits remaining: 0
+[2025-09-12 16:24:53] Done
+[2025-09-12 16:39:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-12 16:39:53] Canceled pending deposits: 0
+[2025-09-12 16:39:53] Pending deposits remaining: 0
+[2025-09-12 16:39:53] Done
+[2025-09-12 16:54:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-12 16:54:53] Canceled pending deposits: 0
+[2025-09-12 16:54:53] Pending deposits remaining: 0
+[2025-09-12 16:54:53] Done
+[2025-09-12 18:18:10] Start cancel_expired_deposits (expire=30m)
+[2025-09-12 18:18:10] Canceled pending deposits: 0
+[2025-09-12 18:18:10] Pending deposits remaining: 0
+[2025-09-12 18:18:10] Done
+[2025-09-12 18:24:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-12 18:24:53] Canceled pending deposits: 0
+[2025-09-12 18:24:53] Pending deposits remaining: 0
+[2025-09-12 18:24:53] Done
+[2025-09-12 18:39:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-12 18:39:53] Canceled pending deposits: 0
+[2025-09-12 18:39:53] Pending deposits remaining: 0
+[2025-09-12 18:39:53] Done
+[2025-09-12 18:54:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-12 18:54:53] Canceled pending deposits: 0
+[2025-09-12 18:54:53] Pending deposits remaining: 0
+[2025-09-12 18:54:53] Done
+[2025-09-12 19:09:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-12 19:09:53] Canceled pending deposits: 0
+[2025-09-12 19:09:53] Pending deposits remaining: 0
+[2025-09-12 19:09:53] Done
+[2025-09-12 19:24:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-12 19:24:53] Canceled pending deposits: 0
+[2025-09-12 19:24:53] Pending deposits remaining: 0
+[2025-09-12 19:24:53] Done
+[2025-09-12 19:39:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-12 19:39:53] Canceled pending deposits: 0
+[2025-09-12 19:39:53] Pending deposits remaining: 0
+[2025-09-12 19:39:53] Done
+[2025-09-12 19:54:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-12 19:54:53] Canceled pending deposits: 0
+[2025-09-12 19:54:53] Pending deposits remaining: 0
+[2025-09-12 19:54:53] Done
+[2025-09-12 20:09:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-12 20:09:53] Canceled pending deposits: 0
+[2025-09-12 20:09:53] Pending deposits remaining: 0
+[2025-09-12 20:09:53] Done
+[2025-09-12 20:24:53] Start cancel_expired_deposits (expire=30m)
+[2025-09-12 20:24:53] Canceled pending deposits: 0
+[2025-09-12 20:24:53] Pending deposits remaining: 0
+[2025-09-12 20:24:53] Done

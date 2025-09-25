@@ -1,0 +1,3 @@
+[2025-09-25 16:43:32] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-25 16:43:32] No overdue online bookings.
