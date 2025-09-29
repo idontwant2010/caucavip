@@ -3,8 +3,8 @@ require_once __DIR__ . '/../../../connect.php';
 require_once __DIR__ . '/../../../check_login.php';
 
 if ($_SESSION['user']['vai_tro'] !== 'canthu') {
-    echo "Truy cập bị từ chối.";
-    exit;
+  echo "Truy cập bị từ chối.";
+  exit;
 }
 
 $user_id = $_SESSION['user']['id'];
@@ -19,8 +19,8 @@ $sql = "SELECT gl.*, hc.ten_ho, ght.ten_hinh_thuc
 $params = [$user_id];
 
 if ($status_filter !== '') {
-    $sql .= " AND gl.status = ?";
-    $params[] = $status_filter;
+  $sql .= " AND gl.status = ?";
+  $params[] = $status_filter;
 }
 
 $sql .= " ORDER BY gl.created_at DESC, gl.id DESC";
@@ -68,9 +68,9 @@ $so_giai_dang_chay = $tong_so_giai - $so_giai_hoan_thanh - $so_giai_huy;
     </div>
   </form>
   <div class="d-flex justify-content-between align-items-center mb-4">
-  <h4 class="mb-0">📋 Danh sách giải do tôi tổ chức</h4>
-  <a href="../giai/giai_ho_cau.php" class="btn btn-success">➕ Tạo giải mới</a>
-</div>
+    <h4 class="mb-0">📋 Danh sách giải do tôi tổ chức</h4>
+    <a href="../giai/giai_ho_cau.php" class="btn btn-success">➕ Tạo giải mới</a>
+  </div>
   <?php if (empty($ds_giai)): ?>
     <div class="alert alert-warning">Bạn chưa tạo giải nào.</div>
   <?php else: ?>
@@ -90,61 +90,61 @@ $so_giai_dang_chay = $tong_so_giai - $so_giai_hoan_thanh - $so_giai_huy;
         </thead>
         <tbody>
           <?php foreach ($ds_giai as $index => $giai): ?>
-          <tr>
-            <td>#<?= htmlspecialchars($giai['id']) ?></td>
-            <td><?= htmlspecialchars($giai['ten_giai']) ?></td>
-            <td><?= htmlspecialchars($giai['ten_ho']) ?></td>
-            <td><?= htmlspecialchars($giai['ten_hinh_thuc']) ?></td>
-            <td><?= $giai['so_luong_can_thu'] ?></td>
-            <td><?= date('d/m/Y', strtotime($giai['ngay_to_chuc'])) ?></td>
+            <tr>
+              <td>#<?= htmlspecialchars($giai['id']) ?></td>
+              <td><?= htmlspecialchars($giai['ten_giai']) ?></td>
+              <td><?= htmlspecialchars($giai['ten_ho']) ?></td>
+              <td><?= htmlspecialchars($giai['ten_hinh_thuc']) ?></td>
+              <td><?= $giai['so_luong_can_thu'] ?></td>
+              <td><?= date('d/m/Y', strtotime($giai['ngay_to_chuc'])) ?></td>
 
-<td>
-    <?php
-    switch ($giai['status']) {
-        case 'dang_cho_xac_nhan':
-            echo '<span class="badge bg-secondary">Đang chờ xác nhận</span>';
-            break;
-		case 'chuyen_chu_ho_duyet':
-            echo '<span class="badge bg-info text-dark">Đang Chuyển Chủ Hồ Duyệt</span>';
-            break;	
-        case 'dang_mo_dang_ky':
-            echo '<span class="badge bg-warning text-dark">Đang mở đăng ký</span>';
-            break;
-        case 'da_chot_danh_sach':
-            echo '<span class="badge bg-warning text-dark">Đã chốt danh sách</span>';
-            break;			
-			
-        case 'dang_dau_hiep_1':
-            echo '<span class="badge bg-warning text-dark">Đang đấu hiệp 1</span>';
-            break;
-        case 'dang_dau_hiep_2':
-            echo '<span class="badge bg-warning text-dark">Đang đấu hiệp 2</span>';
-            break;
-        case 'dang_dau_hiep_3':
-            echo '<span class="badge bg-warning text-dark">Đang đấu hiệp 3</span>';
-            break;
-        case 'dang_dau_hiep_4':
-            echo '<span class="badge bg-warning text-dark">Đang đấu hiệp 4</span>';
-            break;			
-        case 'so_ket_giai':
-            echo '<span class="badge bg-warning text-dark">Sơ kết giải</span>';
-            break;			
-	        case 'hoan_tat_giai':
-            echo '<span class="badge bg-success">Hoàn tất giải</span>';
-            break;
-        case 'huy_giai':
-            echo '<span class="badge bg-danger">Huỷ giải</span>';
-            break;
-        default:
-            echo '<span class="badge bg-light text-dark">' . htmlspecialchars($giai['status']) . '</span>';
-    }
-    ?>
-</td>
+              <td>
+                <?php
+                switch ($giai['status']) {
+                  case 'dang_cho_xac_nhan':
+                    echo '<span class="badge bg-secondary">Đang chờ xác nhận</span>';
+                    break;
+                  case 'chuyen_chu_ho_duyet':
+                    echo '<span class="badge bg-info text-dark">Đang Chuyển Chủ Hồ Duyệt</span>';
+                    break;
+                  case 'dang_mo_dang_ky':
+                    echo '<span class="badge bg-warning text-dark">Đang mở đăng ký</span>';
+                    break;
+                  case 'da_chot_danh_sach':
+                    echo '<span class="badge bg-warning text-dark">Đã chốt danh sách</span>';
+                    break;
 
-            <td>
-              <a href="my_giai_detail.php?id=<?= $giai['id'] ?>" class="btn btn-sm btn-info">Chi tiết</a>
-            </td>
-          </tr>
+                  case 'dang_dau_hiep_1':
+                    echo '<span class="badge bg-warning text-dark">Đang đấu hiệp 1</span>';
+                    break;
+                  case 'dang_dau_hiep_2':
+                    echo '<span class="badge bg-warning text-dark">Đang đấu hiệp 2</span>';
+                    break;
+                  case 'dang_dau_hiep_3':
+                    echo '<span class="badge bg-warning text-dark">Đang đấu hiệp 3</span>';
+                    break;
+                  case 'dang_dau_hiep_4':
+                    echo '<span class="badge bg-warning text-dark">Đang đấu hiệp 4</span>';
+                    break;
+                  case 'so_ket_giai':
+                    echo '<span class="badge bg-warning text-dark">Sơ kết giải</span>';
+                    break;
+                  case 'hoan_tat_giai':
+                    echo '<span class="badge bg-success">Hoàn tất giải</span>';
+                    break;
+                  case 'huy_giai':
+                    echo '<span class="badge bg-danger">Huỷ giải</span>';
+                    break;
+                  default:
+                    echo '<span class="badge bg-light text-dark">' . htmlspecialchars($giai['status']) . '</span>';
+                }
+                ?>
+              </td>
+
+              <td>
+                <a href="my_giai_detail.php?id=<?= $giai['id'] ?>" class="btn btn-sm btn-info">Chi tiết</a>
+              </td>
+            </tr>
           <?php endforeach; ?>
         </tbody>
       </table>

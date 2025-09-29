@@ -75,7 +75,7 @@ if ($giai['so_hiep'] == 2) {
 } else {
     $link = "my_giai_detail_step_2.php?id={$giai_id}"; // fallback
 }
-echo 
+echo
 "<script>
     alert('✅ Đã chốt danh sách thành công và tạo lịch thi đấu.');
     window.location.href='{$link}';

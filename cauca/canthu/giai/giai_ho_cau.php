@@ -4,8 +4,8 @@ require_once __DIR__ . '/../../../check_login.php';
 
 
 if ($_SESSION['user']['vai_tro'] !== 'canthu') {
-    header("Location: /");
-    exit;
+  header("Location: /");
+  exit;
 }
 
 // Load danh sách tỉnh, loại cá để hiển thị bộ lọc
@@ -29,20 +29,20 @@ $conditions[] = "h.cho_phep_danh_giai = 1";
 $conditions[] = "c.status = 'dang_chay'";
 
 if ($tinh_id > 0) {
-    $conditions[] = "t.id = ?";
-    $params[] = $tinh_id;
+  $conditions[] = "t.id = ?";
+  $params[] = $tinh_id;
 }
 if ($loai_ca_id > 0) {
-    $conditions[] = "h.loai_ca_id = ?";
-    $params[] = $loai_ca_id;
+  $conditions[] = "h.loai_ca_id = ?";
+  $params[] = $loai_ca_id;
 }
 if ($keyword !== '') {
-    $conditions[] = "(h.ten_ho LIKE ? OR c.ten_cum_ho LIKE ? OR c.dia_chi LIKE ? OR h.mo_ta LIKE ? OR t.ten_tinh LIKE ?)";
-    $params[] = "%$keyword%";
-    $params[] = "%$keyword%";
-    $params[] = "%$keyword%";
-    $params[] = "%$keyword%";
-	$params[] = "%$keyword%";
+  $conditions[] = "(h.ten_ho LIKE ? OR c.ten_cum_ho LIKE ? OR c.dia_chi LIKE ? OR h.mo_ta LIKE ? OR t.ten_tinh LIKE ?)";
+  $params[] = "%$keyword%";
+  $params[] = "%$keyword%";
+  $params[] = "%$keyword%";
+  $params[] = "%$keyword%";
+  $params[] = "%$keyword%";
 }
 
 $where_sql = implode(" AND ", $conditions);
@@ -105,7 +105,7 @@ $ds_ho = $stmt->fetchAll();
     </div>
     <div class="col-12">
       <button class="btn btn-primary" type="submit">🔍 Tìm kiếm</button>
-	  <a href="giai_ho_cau.php" class="btn btn-secondary ms-2">🔄 Reset bộ lọc</a>
+      <a href="giai_ho_cau.php" class="btn btn-secondary ms-2">🔄 Reset bộ lọc</a>
     </div>
 
   </form>
@@ -135,15 +135,15 @@ $ds_ho = $stmt->fetchAll();
   </div>
 
   <?php if ($total_pages > 1): ?>
-  <nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center mt-4">
-      <?php for ($p = 1; $p <= $total_pages; $p++): ?>
-        <li class="page-item <?= ($p == $page) ? 'active' : '' ?>">
-          <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $p])) ?>"><?= $p ?></a>
-        </li>
-      <?php endfor; ?>
-    </ul>
-  </nav>
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center mt-4">
+        <?php for ($p = 1; $p <= $total_pages; $p++): ?>
+          <li class="page-item <?= ($p == $page) ? 'active' : '' ?>">
+            <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $p])) ?>"><?= $p ?></a>
+          </li>
+        <?php endfor; ?>
+      </ul>
+    </nav>
   <?php endif; ?>
 </div>
 

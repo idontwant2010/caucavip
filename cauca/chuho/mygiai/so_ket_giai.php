@@ -60,29 +60,27 @@ foreach ($user_data as $u) {
     ");
     $stmt_update->execute([$u['tong_diem'], $u['tong_kg'], $rank, $giai_id, $u['user_id']]);
     $rank++;
-	
-// Bước 5: Đổi trạng thái
-	// Lấy thông tin giải
-	$stmt = $pdo->prepare("SELECT * FROM giai_list WHERE id = ?");
-	$stmt->execute([$giai_id]);
-	$giai = $stmt->fetch();
-	
-	//lấy hiện hiện tại
-	$hiep_hien_tai = null;
-	if (preg_match('/^dang_dau_hiep_(\d+)$/', $giai['status'], $matches)) {
-		$hiep_hien_tai = (int) $matches[1]; // ép kiểu cho chắc
-	}
+
+    // Bước 5: Đổi trạng thái
+    // Lấy thông tin giải
+    $stmt = $pdo->prepare("SELECT * FROM giai_list WHERE id = ?");
+    $stmt->execute([$giai_id]);
+    $giai = $stmt->fetch();
+
+    //lấy hiện hiện tại
+    $hiep_hien_tai = null;
+    if (preg_match('/^dang_dau_hiep_(\d+)$/', $giai['status'], $matches)) {
+        $hiep_hien_tai = (int) $matches[1]; // ép kiểu cho chắc
+    }
 
 
-	if ($hiep_hien_tai == $giai['so_hiep'] ) {
-		$stmt_update_status = $pdo->prepare("UPDATE giai_list SET status = 'so_ket_giai' WHERE id = ?");
-		$stmt_update_status->execute([$giai_id]);
-	}	
-	
+    if ($hiep_hien_tai == $giai['so_hiep']) {
+        $stmt_update_status = $pdo->prepare("UPDATE giai_list SET status = 'so_ket_giai' WHERE id = ?");
+        $stmt_update_status->execute([$giai_id]);
+    }
 }
 
 echo "<script>
     alert('✅ Đã tổng kết giải & xếp hạng " . count($user_data) . " người chơi.');
     window.location.href = 'my_giai_detail_step_3.php?id=$giai_id';
 </script>";
-

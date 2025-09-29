@@ -5,7 +5,8 @@ date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 // Helper định dạng tiền (nếu bạn đã có money_vnd() thì bỏ hàm này)
 if (!function_exists('money_vnd')) {
-  function money_vnd($n) {
+  function money_vnd($n)
+  {
     $n = (int)$n;
     return number_format($n, 0, ',', '.') . ' đ';
   }
@@ -104,11 +105,13 @@ foreach ($rows as $r) {
 ?>
 <!doctype html>
 <html lang="vi">
+
 <head>
   <meta charset="utf-8">
   <title>Huỷ giải - Bước 1</title>
   <link href="/assets/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body class="container py-4">
   <h3 class="mb-3">❌ Huỷ giải — Bước 1: Xác nhận hoàn trả cho cần thủ</h3>
 
@@ -126,48 +129,48 @@ foreach ($rows as $r) {
       <div class="table-responsive">
         <table class="table table-sm table-striped mb-0 align-middle">
           <thead class="table-light">
-          <tr>
-            <th class="text-center" style="width:56px">#</th>
-            <th>Cần thủ</th>
-            <th>Điện thoại</th>
-            <th class="text-end">Đã thanh toán</th>
-            <th class="text-end">Hoàn trả (dự kiến)</th>
-          </tr>
+            <tr>
+              <th class="text-center" style="width:56px">#</th>
+              <th>Cần thủ</th>
+              <th>Điện thoại</th>
+              <th class="text-end">Đã thanh toán</th>
+              <th class="text-end">Hoàn trả (dự kiến)</th>
+            </tr>
           </thead>
           <tbody>
-          <?php if (empty($rows)): ?>
-            <tr>
-              <td colspan="5" class="text-center text-muted py-4">Chưa có cần thủ nào đã thanh toán.</td>
-            </tr>
-          <?php else: ?>
-            <?php foreach ($rows as $i => $r): ?>
-              <?php
+            <?php if (empty($rows)): ?>
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">Chưa có cần thủ nào đã thanh toán.</td>
+              </tr>
+            <?php else: ?>
+              <?php foreach ($rows as $i => $r): ?>
+                <?php
                 $paid = (int)$r['paid_amount'];
                 $refund = (int)round($paid * $REFUND_RATE);
-              ?>
-              <tr>
-                <td class="text-center"><?= $i + 1 ?></td>
-                <td>
-                  <div class="fw-semibold">
-                    <?= htmlspecialchars($r['full_name'] ?: ($r['nickname'] ?: '—')) ?>
-                    <?php if (!empty($r['nickname'])): ?>
-                      <small class="text-muted">(<?= htmlspecialchars($r['nickname']) ?>)</small>
-                    <?php endif; ?>
-                  </div>
-                </td>
-                <td><?= htmlspecialchars($r['phone'] ?? '—') ?></td>
-                <td class="text-end"><?= money_vnd($paid) ?></td>
-                <td class="text-end"><?= money_vnd($refund) ?></td>
-              </tr>
-            <?php endforeach; ?>
-          <?php endif; ?>
+                ?>
+                <tr>
+                  <td class="text-center"><?= $i + 1 ?></td>
+                  <td>
+                    <div class="fw-semibold">
+                      <?= htmlspecialchars($r['full_name'] ?: ($r['nickname'] ?: '—')) ?>
+                      <?php if (!empty($r['nickname'])): ?>
+                        <small class="text-muted">(<?= htmlspecialchars($r['nickname']) ?>)</small>
+                      <?php endif; ?>
+                    </div>
+                  </td>
+                  <td><?= htmlspecialchars($r['phone'] ?? '—') ?></td>
+                  <td class="text-end"><?= money_vnd($paid) ?></td>
+                  <td class="text-end"><?= money_vnd($refund) ?></td>
+                </tr>
+              <?php endforeach; ?>
+            <?php endif; ?>
           </tbody>
           <tfoot class="table-light">
-          <tr>
-            <th colspan="3" class="text-end">Tổng đã thanh toán:</th>
-            <th class="text-end"><?= money_vnd($total_paid) ?></th>
-            <th class="text-end"><?= money_vnd($total_refund) ?></th>
-          </tr>
+            <tr>
+              <th colspan="3" class="text-end">Tổng đã thanh toán:</th>
+              <th class="text-end"><?= money_vnd($total_paid) ?></th>
+              <th class="text-end"><?= money_vnd($total_refund) ?></th>
+            </tr>
           </tfoot>
         </table>
       </div>
@@ -178,10 +181,11 @@ foreach ($rows as $r) {
     <input type="hidden" name="giai_id" value="<?= (int)$giai_id ?>">
     <input type="hidden" name="total_refund" value="<?= (int)$total_refund ?>">
     <button type="submit" class="btn btn-danger"
-            onclick="return confirm('Xác nhận chuyển qua bước 2 để tiến hành hoàn trả?')">
+      onclick="return confirm('Xác nhận chuyển qua bước 2 để tiến hành hoàn trả?')">
       Tiếp tục → Bước 2 (xử lý hoàn trả)
     </button>
     <a href="javascript:history.back()" class="btn btn-outline-secondary ms-2">Quay lại</a>
   </form>
 </body>
+
 </html>

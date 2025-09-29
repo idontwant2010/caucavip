@@ -3,8 +3,8 @@ require_once __DIR__ . '/../../../connect.php';
 require_once __DIR__ . '/../../../check_login.php';
 
 if ($_SESSION['user']['vai_tro'] !== 'canthu') {
-    header("Location: /");
-    exit;
+  header("Location: /");
+  exit;
 }
 
 $user_id = (int)$_SESSION['user']['id'];
@@ -58,23 +58,23 @@ WHERE g.status = 'dang_mo_dang_ky'
 ";
 
 $params = [
-    ':uid1' => $user_id,
-    ':uid2' => $user_id,
-    ':uid3' => $user_id,
+  ':uid1' => $user_id,
+  ':uid2' => $user_id,
+  ':uid3' => $user_id,
 ];
 
 // --- điều kiện tìm kiếm động ---
 if ($search_ten !== '') {
-    $sql .= " AND g.ten_giai LIKE :search_ten";
-    $params[':search_ten'] = "%{$search_ten}%";
+  $sql .= " AND g.ten_giai LIKE :search_ten";
+  $params[':search_ten'] = "%{$search_ten}%";
 }
 if ($search_dia_diem !== '') {
-    $sql .= " AND ch.ten_cum_ho LIKE :search_dia_diem";
-    $params[':search_dia_diem'] = "%{$search_dia_diem}%";
+  $sql .= " AND ch.ten_cum_ho LIKE :search_dia_diem";
+  $params[':search_dia_diem'] = "%{$search_dia_diem}%";
 }
 if ($search_ngay !== '') {
-    $sql .= " AND g.ngay_to_chuc = :search_ngay";
-    $params[':search_ngay'] = $search_ngay;
+  $sql .= " AND g.ngay_to_chuc = :search_ngay";
+  $params[':search_ngay'] = $search_ngay;
 }
 
 // --- sắp xếp cuối cùng ---
@@ -90,76 +90,76 @@ include __DIR__ . '/../../../includes/header.php';
 ?>
 
 <div class="container mt-4">
-    <h3 class="mb-4">🎯 Danh sách các giải đang mở đăng ký</h3>
+  <h3 class="mb-4">🎯 Danh sách các giải đang mở đăng ký</h3>
 
-    <form method="get" class="row g-3 mb-4">
-        <div class="col-md-4">
-            <input type="text" name="search_ten" class="form-control" placeholder="🔍 Tên giải..." value="<?= htmlspecialchars($search_ten) ?>">
-        </div>
-        <div class="col-md-4">
-            <input type="text" name="search_dia_diem" class="form-control" placeholder="🏞️ Địa điểm (cụm hồ)..." value="<?= htmlspecialchars($search_dia_diem) ?>">
-        </div>
-		<div class="col-md-auto d-flex align-items-start gap-2">
-			<button type="submit" class="btn btn-primary">Lọc</button>
-			<a href="giai_list.php" class="btn btn-outline-secondary">🔄 Reset tất cả</a>
-		</div>
-    </form>
-
-    <?php if (empty($ds_giai)): ?>
-        <div class="alert alert-info">Không tìm thấy giải phù hợp.</div>
-    <?php endif; ?>
-
-    <div class="row">
-    <?php foreach ($ds_giai as $g): ?>
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">🏆 <?= htmlspecialchars($g['ten_giai']) ?></h5>
-                    <p class="mb-1">📍 <strong><?= $g['ten_ho'] ?></strong> - <?= $g['ten_cum_ho'] ?></p>
-                    <p class="mb-1">📅 Tổ chức: <?= date('d/m/Y', strtotime($g['ngay_to_chuc'])) ?> lúc <?= substr($g['gio_bat_dau'], 0, 5) ?></p>
-                    <p class="mb-1">⏳ Đăng ký đến: <?= date('d/m/Y H:i', strtotime($g['thoi_gian_dong_dang_ky'])) ?></p>
-                    <p class="mb-1">👥 Đã đăng ký: <?= $g['so_nguoi_da_dk'] ?> / <?= $g['so_luong_can_thu'] ?> cần thủ</p>
-                    <div class="progress mb-2">
-                        <div class="progress-bar bg-success" role="progressbar" 
-                            style="width: <?= round($g['so_nguoi_da_dk'] / $g['so_luong_can_thu'] * 100) ?>%;">
-                            <?= $g['so_nguoi_da_dk'] ?> / <?= $g['so_luong_can_thu'] ?>
-                        </div>
-                    </div>
-                    <p class="mb-1">💰 Tiền cược: <?= number_format($g['tien_cuoc'], 0, ',', '.') ?>đ</p>
-                    <p class="mb-1">🎯 Hình thức: <?= $g['ten_hinh_thuc'] ?></p>
-                    <p class="mb-1">🔐 Yêu cầu EXP ≥ <?= $g['min_user_exp'] ?>, Level ≥ <?= $g['min_user_level'] ?></p>
-                </div>
-					  <?php if ((int)$g['da_thanh_toan_count'] > 0): ?>
-						<!-- ĐÃ THAM GIA -->
-						<button type="button" class="btn btn-secondary btn-sm" disabled>Đã tham gia</button>
-
-					  <?php elseif ((int)$g['moi_cho_phan_hoi_count'] > 0): ?>
-						<!-- ĐANG CÓ LỜI MỜI -->
-						<form class="d-inline" action="giai_invite_accept.php" method="post">
-						  <input type="hidden" name="giai_id" value="<?= (int)$g['id'] ?>">
-						  <button type="submit" class="btn btn-success btn-sm">Chấp nhận lời mời</button>
-						</form>
-						<form class="d-inline ms-2" action="giai_invite_decline.php" method="post">
-						  <input type="hidden" name="giai_id" value="<?= (int)$g['id'] ?>">
-						  <button type="submit" class="btn btn-outline-secondary btn-sm">Từ chối</button>
-						</form>
-
-					  <?php elseif ((int)$g['cho_thanh_toan_count'] > 0): ?>
-						<!-- ĐÃ TỰ THAM GIA, CHƯA THANH TOÁN -->
-						<a href="thanh_toan_giai.php?giai_id=<?= (int)$g['id'] ?>" class="btn btn-warning btn-sm">Thanh toán ngay</a>
-
-					  <?php else: ?>
-						<!-- CHƯA CÓ GÌ: HIỂN THỊ NÚT ĐĂNG KÝ -->
-						<form action="dang_ky_giai_process.php" method="post">
-						  <input type="hidden" name="giai_id" value="<?= (int)$g['id'] ?>">
-						  <button type="submit" class="btn btn-primary btn-sm">Đăng ký tham gia</button>
-						</form>
-					  <?php endif; ?>
-
-            </div>
-        </div>
-    <?php endforeach; ?>
+  <form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+      <input type="text" name="search_ten" class="form-control" placeholder="🔍 Tên giải..." value="<?= htmlspecialchars($search_ten) ?>">
     </div>
+    <div class="col-md-4">
+      <input type="text" name="search_dia_diem" class="form-control" placeholder="🏞️ Địa điểm (cụm hồ)..." value="<?= htmlspecialchars($search_dia_diem) ?>">
+    </div>
+    <div class="col-md-auto d-flex align-items-start gap-2">
+      <button type="submit" class="btn btn-primary">Lọc</button>
+      <a href="giai_list.php" class="btn btn-outline-secondary">🔄 Reset tất cả</a>
+    </div>
+  </form>
+
+  <?php if (empty($ds_giai)): ?>
+    <div class="alert alert-info">Không tìm thấy giải phù hợp.</div>
+  <?php endif; ?>
+
+  <div class="row">
+    <?php foreach ($ds_giai as $g): ?>
+      <div class="col-md-6 mb-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">🏆 <?= htmlspecialchars($g['ten_giai']) ?></h5>
+            <p class="mb-1">📍 <strong><?= $g['ten_ho'] ?></strong> - <?= $g['ten_cum_ho'] ?></p>
+            <p class="mb-1">📅 Tổ chức: <?= date('d/m/Y', strtotime($g['ngay_to_chuc'])) ?> lúc <?= substr($g['gio_bat_dau'], 0, 5) ?></p>
+            <p class="mb-1">⏳ Đăng ký đến: <?= date('d/m/Y H:i', strtotime($g['thoi_gian_dong_dang_ky'])) ?></p>
+            <p class="mb-1">👥 Đã đăng ký: <?= $g['so_nguoi_da_dk'] ?> / <?= $g['so_luong_can_thu'] ?> cần thủ</p>
+            <div class="progress mb-2">
+              <div class="progress-bar bg-success" role="progressbar"
+                style="width: <?= round($g['so_nguoi_da_dk'] / $g['so_luong_can_thu'] * 100) ?>%;">
+                <?= $g['so_nguoi_da_dk'] ?> / <?= $g['so_luong_can_thu'] ?>
+              </div>
+            </div>
+            <p class="mb-1">💰 Tiền cược: <?= number_format($g['tien_cuoc'], 0, ',', '.') ?>đ</p>
+            <p class="mb-1">🎯 Hình thức: <?= $g['ten_hinh_thuc'] ?></p>
+            <p class="mb-1">🔐 Yêu cầu EXP ≥ <?= $g['min_user_exp'] ?>, Level ≥ <?= $g['min_user_level'] ?></p>
+          </div>
+          <?php if ((int)$g['da_thanh_toan_count'] > 0): ?>
+            <!-- ĐÃ THAM GIA -->
+            <button type="button" class="btn btn-secondary btn-sm" disabled>Đã tham gia</button>
+
+          <?php elseif ((int)$g['moi_cho_phan_hoi_count'] > 0): ?>
+            <!-- ĐANG CÓ LỜI MỜI -->
+            <form class="d-inline" action="giai_invite_accept.php" method="post">
+              <input type="hidden" name="giai_id" value="<?= (int)$g['id'] ?>">
+              <button type="submit" class="btn btn-success btn-sm">Chấp nhận lời mời</button>
+            </form>
+            <form class="d-inline ms-2" action="giai_invite_decline.php" method="post">
+              <input type="hidden" name="giai_id" value="<?= (int)$g['id'] ?>">
+              <button type="submit" class="btn btn-outline-secondary btn-sm">Từ chối</button>
+            </form>
+
+          <?php elseif ((int)$g['cho_thanh_toan_count'] > 0): ?>
+            <!-- ĐÃ TỰ THAM GIA, CHƯA THANH TOÁN -->
+            <a href="thanh_toan_giai.php?giai_id=<?= (int)$g['id'] ?>" class="btn btn-warning btn-sm">Thanh toán ngay</a>
+
+          <?php else: ?>
+            <!-- CHƯA CÓ GÌ: HIỂN THỊ NÚT ĐĂNG KÝ -->
+            <form action="dang_ky_giai_process.php" method="post">
+              <input type="hidden" name="giai_id" value="<?= (int)$g['id'] ?>">
+              <button type="submit" class="btn btn-primary btn-sm">Đăng ký tham gia</button>
+            </form>
+          <?php endif; ?>
+
+        </div>
+      </div>
+    <?php endforeach; ?>
+  </div>
 </div>
 
 <?php include __DIR__ . '/../../../includes/footer.php'; ?>

@@ -5,7 +5,10 @@ date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 /* --- Helper định dạng tiền --- */
 if (!function_exists('money_vnd')) {
-  function money_vnd($n) { return number_format((int)$n, 0, ',', '.') . ' đ'; }
+  function money_vnd($n)
+  {
+    return number_format((int)$n, 0, ',', '.') . ' đ';
+  }
 }
 
 /* --- Input --- */
@@ -107,12 +110,12 @@ try {
   $stBal->execute([$creatorId]);
   $creatorBefore = (int)$stBal->fetchColumn();
   if ($creatorBefore < $total_refund) {
-    throw new RuntimeException("Số dư người tạo giải không đủ (cần ".money_vnd($total_refund).", có ".money_vnd($creatorBefore).").");
+    throw new RuntimeException("Số dư người tạo giải không đủ (cần " . money_vnd($total_refund) . ", có " . money_vnd($creatorBefore) . ").");
   }
   $creatorAfter = $creatorBefore - $total_refund;
 
   $pdo->prepare("UPDATE users SET balance = balance - ? WHERE id = ?")
-      ->execute([$total_refund, $creatorId]);
+    ->execute([$total_refund, $creatorId]);
 
 
   // 2) Log cho creator (sent)
@@ -128,7 +131,7 @@ try {
     -$total_refund,                // change_amount âm khi trừ tiền
     'giai_pay',                    // loại giao dịch
     $total_refund,                 // số tiền tuyệt đối
-    "Huỷ giải #$giai_id: chi refund cho ".count($refunds)." cần thủ",
+    "Huỷ giải #$giai_id: chi refund cho " . count($refunds) . " cần thủ",
     $refNo,
     $creatorBefore,
     $creatorAfter
@@ -149,13 +152,17 @@ try {
   foreach ($refunds as $rf) {
     $uid = (int)$rf['user_id'];
     $amt = (int)$rf['amount'];
-    if ($uid <= 0 || $amt <= 0) { continue; }
+    if ($uid <= 0 || $amt <= 0) {
+      continue;
+    }
 
     // 2) Khóa số dư & lấy số dư trước
     $stUserBal->execute([$uid]);
     $before = (int)$stUserBal->fetchColumn();
     // (tuỳ chọn) nếu user không tồn tại
-    if ($stUserBal->rowCount() === 0 && $before === false) { continue; }
+    if ($stUserBal->rowCount() === 0 && $before === false) {
+      continue;
+    }
 
     // 3) Cộng tiền
     $after  = $before + $amt;
@@ -164,10 +171,10 @@ try {
     // 4) Ghi log từng người
     // Tạo ref_no riêng cho mỗi giao dịch (ví dụ GRF = Giai Refund)
     $refNo = 'GRF' . $giai_id . '-' . $uid . '-' . date('YmdHis');
-	
 
-	// Thêm số dư sau vào note
-	$note = "Huỷ giải #$giai_id: hoàn trả phí giải. Số dư sau: " . money_vnd($after) . "";
+
+    // Thêm số dư sau vào note
+    $note = "Huỷ giải #$giai_id: hoàn trả phí giải. Số dư sau: " . money_vnd($after) . "";
 
     $stUserLog->execute([
       $uid,
@@ -182,9 +189,9 @@ try {
 
     $userIds[] = $uid;
   }
-	
-	// 5) Cập nhật trạng thái giai_user: 'da_thanh_toan' -> 'Đã Hoàn Tiền'
-	$pdo->prepare("
+
+  // 5) Cập nhật trạng thái giai_user: 'da_thanh_toan' -> 'Đã Hoàn Tiền'
+  $pdo->prepare("
 	  UPDATE giai_user
 	  SET trang_thai = 'Đã hoàn tiền'
 	  WHERE giai_id = ?
@@ -195,13 +202,12 @@ try {
   $pdo->prepare("UPDATE giai_list SET status = 'huy_giai' WHERE id = ?")->execute([$giai_id]);
 
   $pdo->commit();
-
 } catch (Throwable $e) {
   $pdo->rollBack();
   http_response_code(500);
   echo "<div class='container py-4'>
           <h3>Lỗi khi huỷ giải</h3>
-          <pre style='white-space:pre-wrap'>".$e->getMessage()."</pre>
+          <pre style='white-space:pre-wrap'>" . $e->getMessage() . "</pre>
           <a class='btn btn-outline-secondary' href='javascript:history.back()'>Quay lại</a>
         </div>";
   exit;
@@ -211,15 +217,17 @@ try {
 ?>
 <!doctype html>
 <html lang="vi">
+
 <head>
   <meta charset="utf-8">
   <title>Huỷ giải - Bước 2 (hoàn trả)</title>
   <link href="/assets/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body class="container py-4">
   <h3 class="mb-3">✅ Đã huỷ giải và hoàn trả cho cần thủ</h3>
   <div class="mb-3">
-    <div><strong>Giải:</strong> <?= htmlspecialchars($giai['ten_giai'] ?? ('#'.$giai_id)) ?></div>
+    <div><strong>Giải:</strong> <?= htmlspecialchars($giai['ten_giai'] ?? ('#' . $giai_id)) ?></div>
     <div><strong>Người tạo giải (ID):</strong> <?= (int)$creatorId ?></div>
     <div><strong>Tổng đã hoàn:</strong> <span class="fw-bold"><?= money_vnd($total_refund) ?></span></div>
   </div>
@@ -230,40 +238,40 @@ try {
       <div class="table-responsive">
         <table class="table table-sm table-striped mb-0 align-middle">
           <thead class="table-light">
-          <tr>
-            <th style="width:56px" class="text-center">#</th>
-            <th>Cần thủ</th>
-            <th>Điện thoại</th>
-            <th class="text-end">Hoàn trả</th>
-          </tr>
+            <tr>
+              <th style="width:56px" class="text-center">#</th>
+              <th>Cần thủ</th>
+              <th>Điện thoại</th>
+              <th class="text-end">Hoàn trả</th>
+            </tr>
           </thead>
           <tbody>
-          <?php foreach ($rows as $i => $r): ?>
-            <?php
+            <?php foreach ($rows as $i => $r): ?>
+              <?php
               $paid   = (int)$r['paid_amount'];
               $refund = (int)round($paid * $REFUND_RATE);
               if ($refund <= 0) continue;
-            ?>
-            <tr>
-              <td class="text-center"><?= $i+1 ?></td>
-              <td>
-                <div class="fw-semibold">
-                  <?= htmlspecialchars($r['full_name'] ?: ($r['nickname'] ?: '—')) ?>
-                  <?php if (!empty($r['nickname'])): ?>
-                    <small class="text-muted">(<?= htmlspecialchars($r['nickname']) ?>)</small>
-                  <?php endif; ?>
-                </div>
-              </td>
-              <td><?= htmlspecialchars($r['phone'] ?? '—') ?></td>
-              <td class="text-end"><?= money_vnd($refund) ?></td>
-            </tr>
-          <?php endforeach; ?>
+              ?>
+              <tr>
+                <td class="text-center"><?= $i + 1 ?></td>
+                <td>
+                  <div class="fw-semibold">
+                    <?= htmlspecialchars($r['full_name'] ?: ($r['nickname'] ?: '—')) ?>
+                    <?php if (!empty($r['nickname'])): ?>
+                      <small class="text-muted">(<?= htmlspecialchars($r['nickname']) ?>)</small>
+                    <?php endif; ?>
+                  </div>
+                </td>
+                <td><?= htmlspecialchars($r['phone'] ?? '—') ?></td>
+                <td class="text-end"><?= money_vnd($refund) ?></td>
+              </tr>
+            <?php endforeach; ?>
           </tbody>
           <tfoot class="table-light">
-          <tr>
-            <th colspan="3" class="text-end">Tổng hoàn trả:</th>
-            <th class="text-end"><?= money_vnd($total_refund) ?></th>
-          </tr>
+            <tr>
+              <th colspan="3" class="text-end">Tổng hoàn trả:</th>
+              <th class="text-end"><?= money_vnd($total_refund) ?></th>
+            </tr>
           </tfoot>
         </table>
       </div>
@@ -274,4 +282,5 @@ try {
     <a href="javascript:history.back()" class="btn btn-secondary">Quay lại</a>
   </div>
 </body>
+
 </html>

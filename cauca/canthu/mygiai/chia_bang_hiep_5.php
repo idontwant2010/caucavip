@@ -39,56 +39,53 @@ if (!$da_chia_hiep_4) {
 $so_bang = $giai['so_bang'];
 $so_hiep = $giai['so_hiep'];
 
-function tao_quy_luat_xoay($so_bang, $so_hiep) {
+function tao_quy_luat_xoay($so_bang, $so_hiep)
+{
     if ($so_bang == 2 && $so_hiep == 2) {
         return ['A' => 'B', 'B' => 'A'];
-    } 
-	
-	if ($so_bang == 4 && $so_hiep == 2) {
+    }
+
+    if ($so_bang == 4 && $so_hiep == 2) {
         // Quy luật xoay bảng cho 4 bảng, 2 hiệp
         return ['A' => 'C', 'B' => 'D', 'C' => 'A', 'D' => 'B'];
     }
-	
+
     if ($so_bang == 3 && $so_hiep == 3) {
         return ['A' => 'B', 'B' => 'C', 'C' => 'A'];
     }
-	
-	if ($so_bang == 6 && $so_hiep == 3) {
+
+    if ($so_bang == 6 && $so_hiep == 3) {
         return ['A' => 'B', 'B' => 'C', 'C' => 'D', 'D' => 'E', 'E' => 'F', 'F' => 'A'];
     }
-	
+
     if ($so_bang == 4 && $so_hiep == 4) {
         // Xoay vòng 4 bảng
         return ['A' => 'B', 'B' => 'C', 'C' => 'D', 'D' => 'A'];
     }
-	
-	if ($so_bang == 8 && $so_hiep == 4) {
-	// Xoay vòng 4 bảng
-	return ['A' => 'C', 'B' => 'D', 'C' => 'E', 'D' => 'F', 'E' => 'G', 'F' => 'H', 'G' => 'A', 'H' => 'B'];
 
-	}
-	
+    if ($so_bang == 8 && $so_hiep == 4) {
+        // Xoay vòng 4 bảng
+        return ['A' => 'C', 'B' => 'D', 'C' => 'E', 'D' => 'F', 'E' => 'G', 'F' => 'H', 'G' => 'A', 'H' => 'B'];
+    }
+
     if ($so_bang == 5 && $so_hiep == 5) {
         // Xoay vòng 4 bảng
         return ['A' => 'B', 'B' => 'C', 'C' => 'D', 'D' => 'E', 'E' => 'A'];
-		
     }
-	
-	if ($so_bang == 10 && $so_hiep == 5) {
+
+    if ($so_bang == 10 && $so_hiep == 5) {
         // Xoay vòng 4 bảng
         return ['A' => 'C', 'B' => 'D', 'C' => 'E', 'D' => 'F', 'E' => 'G', 'F' => 'H', 'G' => 'I', 'H' => 'J', 'I' => 'A', 'J' => 'B'];
-
     }
-	    if ($so_bang == 6 && $so_hiep == 6) {
+    if ($so_bang == 6 && $so_hiep == 6) {
         // Xoay vòng 4 bảng
         return ['A' => 'B', 'B' => 'C', 'C' => 'D', 'D' => 'E', 'E' => 'F', 'F' => 'A'];
-		
     }
-	
-		if ($so_bang == 12 && $so_hiep == 6) {
-		// Xoay vòng 4 bảng
-		return ['A'=>'C','B'=>'D','C'=>'E','D'=>'F','E'=>'G','F'=>'H','G'=>'I','H'=>'J','I'=>'K','J'=>'L','K'=>'A','L'=>'B'];
-	}
+
+    if ($so_bang == 12 && $so_hiep == 6) {
+        // Xoay vòng 4 bảng
+        return ['A' => 'C', 'B' => 'D', 'C' => 'E', 'D' => 'F', 'E' => 'G', 'F' => 'H', 'G' => 'I', 'H' => 'J', 'I' => 'K', 'J' => 'L', 'K' => 'A', 'L' => 'B'];
+    }
 
     // Mặc định: không đổi bảng
     return [];
@@ -115,8 +112,10 @@ foreach ($ds_hiep4 as $row) {
 // Tiến hành chia vị trí
 foreach ($bang_5 as $bang => $users) {
     $n = count($users);
-    $vi_tri_middle = range(2, $n - 1); shuffle($vi_tri_middle);
-    $vi_tri_bien = [1, $n]; shuffle($vi_tri_bien);
+    $vi_tri_middle = range(2, $n - 1);
+    shuffle($vi_tri_middle);
+    $vi_tri_bien = [1, $n];
+    shuffle($vi_tri_bien);
 
     $nhom_tung_ngoi_bien = [];
     $nhom_chua_ngoi_bien = [];
@@ -169,7 +168,7 @@ $stmt->execute([$giai_id]);
 
 $hiep_hien_tai = null;
 if (preg_match('/^dang_dau_hiep_(\d+)$/', $giai['status'], $matches)) {
-    $hiep_hien_tai = (int) $matches[1] + 1 ; // ép kiểu cho chắc
+    $hiep_hien_tai = (int) $matches[1] + 1; // ép kiểu cho chắc
 }
 
 echo "<script>alert('✅ Đã chia bảng và vị trí hiệp 5 thành công!'); window.location.href='my_giai_detail_step_2.php?id={$giai_id}&hiep={$hiep_hien_tai}';</script>";

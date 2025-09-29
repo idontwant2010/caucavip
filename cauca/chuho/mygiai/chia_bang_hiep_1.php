@@ -78,6 +78,3 @@ $stmt = $pdo->prepare("UPDATE giai_list SET status = 'dang_dau_hiep_1' WHERE id 
 $stmt->execute([$giai_id]);
 
 echo "<script>alert('✅ Đã chia bảng và vị trí hiệp 1 thành công!'); window.location.href='my_giai_detail_step_2.php?id={$giai_id}';</script>";
-
-
-

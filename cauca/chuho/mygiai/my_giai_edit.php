@@ -3,8 +3,8 @@ require_once __DIR__ . '/../../../connect.php';
 require_once __DIR__ . '/../../../check_login.php';
 
 if ($_SESSION['user']['vai_tro'] !== 'chuho') {
-    echo "Truy cập bị từ chối.";
-    exit;
+  echo "Truy cập bị từ chối.";
+  exit;
 }
 
 $giai_id = (int)($_GET['id'] ?? 0);
@@ -20,76 +20,77 @@ $ho_cau_info->execute([$giai['ho_cau_id']]);
 $ho = $ho_cau_info->fetch();
 
 if (!$giai || $giai['status'] !== 'dang_cho_xac_nhan') {
-    echo "Giải không tồn tại hoặc không thể chỉnh sửa.";
-    exit;
+  echo "Giải không tồn tại hoặc không thể chỉnh sửa.";
+  exit;
 }
 
 // Xử lý lưu form
-function validate_date($ngay_to_chuc) {
-    return strtotime($ngay_to_chuc) >= strtotime(date('Y-m-d', strtotime('+7 day')));
+function validate_date($ngay_to_chuc)
+{
+  return strtotime($ngay_to_chuc) >= strtotime(date('Y-m-d', strtotime('+7 day')));
 }
 
-		$ngay_hien_tai = new DateTime();
-		$ngay_hien_tai->modify('+7 day');
-		$ngay_gioi_han = $ngay_hien_tai->format('d/m/Y');
+$ngay_hien_tai = new DateTime();
+$ngay_hien_tai->modify('+7 day');
+$ngay_gioi_han = $ngay_hien_tai->format('d/m/Y');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $errors = [];
-    $ten_giai = $_POST['ten_giai'];
-    $ngay_to_chuc = $_POST['ngay_to_chuc'];
-    $gio_bat_dau = $_POST['gio_bat_dau'];
-    $so_luong_can_thu = (int)$_POST['so_luong_can_thu'];
-    $thoi_luong_phut_hiep = (int)$_POST['thoi_luong_phut_hiep'];
-    $tien_cuoc = (int)$_POST['tien_cuoc'];
-    $hinh_thuc_id = (int)$_POST['hinh_thuc_id'];
-    $luat_choi = $_POST['luat_choi'];
+  $errors = [];
+  $ten_giai = $_POST['ten_giai'];
+  $ngay_to_chuc = $_POST['ngay_to_chuc'];
+  $gio_bat_dau = $_POST['gio_bat_dau'];
+  $so_luong_can_thu = (int)$_POST['so_luong_can_thu'];
+  $thoi_luong_phut_hiep = (int)$_POST['thoi_luong_phut_hiep'];
+  $tien_cuoc = (int)$_POST['tien_cuoc'];
+  $hinh_thuc_id = (int)$_POST['hinh_thuc_id'];
+  $luat_choi = $_POST['luat_choi'];
 
-    // Kiểm tra lỗi nhập liệu
-    if (!validate_date($ngay_to_chuc)) {
-        $errors[] = "Ngày tổ chức phải sau ngày hôm nay ít nhất 7 ngày. Ngày tổ chức phải từ ' $ngay_gioi_han ' trở đi.";
-    }
-    if ($so_luong_can_thu > (int)$ho['so_cho_ngoi']) {
-        $errors[] = "Số cần thủ không được vượt quá số chỗ ngồi của hồ.";
-    }
+  // Kiểm tra lỗi nhập liệu
+  if (!validate_date($ngay_to_chuc)) {
+    $errors[] = "Ngày tổ chức phải sau ngày hôm nay ít nhất 7 ngày. Ngày tổ chức phải từ ' $ngay_gioi_han ' trở đi.";
+  }
+  if ($so_luong_can_thu > (int)$ho['so_cho_ngoi']) {
+    $errors[] = "Số cần thủ không được vượt quá số chỗ ngồi của hồ.";
+  }
 
-	// Kiểm tra số cần thủ tối thiểu theo hình thức
-		$min_required = $pdo->query("SELECT so_nguoi_min FROM giai_game_hinh_thuc WHERE id = $hinh_thuc_id")->fetchColumn();
-		if ($so_luong_can_thu < (int)$min_required) {
-		$errors[] = "Số cần thủ phải từ tối thiểu $min_required người theo hình thức giải đã chọn.";
-	}
+  // Kiểm tra số cần thủ tối thiểu theo hình thức
+  $min_required = $pdo->query("SELECT so_nguoi_min FROM giai_game_hinh_thuc WHERE id = $hinh_thuc_id")->fetchColumn();
+  if ($so_luong_can_thu < (int)$min_required) {
+    $errors[] = "Số cần thủ phải từ tối thiểu $min_required người theo hình thức giải đã chọn.";
+  }
 
-    if (!empty($errors)) {
-        echo "<div class='container mt-4 alert alert-danger'>";
-        echo "<strong>Lỗi:</strong><ul>";
-        foreach ($errors as $err) echo "<li>" . htmlspecialchars($err) . "</li>";
-        echo "</ul></div>";
-    } else {
-        $stmt = $pdo->prepare("UPDATE giai_list SET ten_giai = ?, ngay_to_chuc = ?, gio_bat_dau = ?, so_luong_can_thu = ?, thoi_luong_phut_hiep = ?, tien_cuoc = ?, hinh_thuc_id = ?, luat_choi = ? WHERE id = ? AND creator_id = ?");
-        $stmt->execute([$ten_giai, $ngay_to_chuc, $gio_bat_dau, $so_luong_can_thu, $thoi_luong_phut_hiep, $tien_cuoc, $hinh_thuc_id, $luat_choi, $giai_id, $user_id]);
+  if (!empty($errors)) {
+    echo "<div class='container mt-4 alert alert-danger'>";
+    echo "<strong>Lỗi:</strong><ul>";
+    foreach ($errors as $err) echo "<li>" . htmlspecialchars($err) . "</li>";
+    echo "</ul></div>";
+  } else {
+    $stmt = $pdo->prepare("UPDATE giai_list SET ten_giai = ?, ngay_to_chuc = ?, gio_bat_dau = ?, so_luong_can_thu = ?, thoi_luong_phut_hiep = ?, tien_cuoc = ?, hinh_thuc_id = ?, luat_choi = ? WHERE id = ? AND creator_id = ?");
+    $stmt->execute([$ten_giai, $ngay_to_chuc, $gio_bat_dau, $so_luong_can_thu, $thoi_luong_phut_hiep, $tien_cuoc, $hinh_thuc_id, $luat_choi, $giai_id, $user_id]);
 
-// Lấy số hiệp mới
-$so_hiep_moi = (int)$pdo->query("SELECT so_hiep FROM giai_game_hinh_thuc WHERE id = $hinh_thuc_id")->fetchColumn();
+    // Lấy số hiệp mới
+    $so_hiep_moi = (int)$pdo->query("SELECT so_hiep FROM giai_game_hinh_thuc WHERE id = $hinh_thuc_id")->fetchColumn();
 
-        // Tính lại phi_giai
-        $ho_cau = $pdo->query("SELECT gia_giai FROM ho_cau WHERE id = " . (int)$giai['ho_cau_id'])->fetchColumn();
-        $fee_user = $pdo->query("SELECT config_value FROM admin_config_keys WHERE config_key = 'giai_fee_user'")->fetchColumn();
-        $vat_percent = $pdo->query("SELECT config_value FROM admin_config_keys WHERE config_key = 'giai_vat_percent'")->fetchColumn();
+    // Tính lại phi_giai
+    $ho_cau = $pdo->query("SELECT gia_giai FROM ho_cau WHERE id = " . (int)$giai['ho_cau_id'])->fetchColumn();
+    $fee_user = $pdo->query("SELECT config_value FROM admin_config_keys WHERE config_key = 'giai_fee_user'")->fetchColumn();
+    $vat_percent = $pdo->query("SELECT config_value FROM admin_config_keys WHERE config_key = 'giai_vat_percent'")->fetchColumn();
 
-        $phi_1_nguoi_1_hiep = ($ho_cau + $fee_user + ($ho_cau + $fee_user) * $vat_percent / 100) * ($thoi_luong_phut_hiep / 60);
-        $phi_giai_moi = round($so_luong_can_thu * $so_hiep_moi * $phi_1_nguoi_1_hiep);
+    $phi_1_nguoi_1_hiep = ($ho_cau + $fee_user + ($ho_cau + $fee_user) * $vat_percent / 100) * ($thoi_luong_phut_hiep / 60);
+    $phi_giai_moi = round($so_luong_can_thu * $so_hiep_moi * $phi_1_nguoi_1_hiep);
 
-        $pdo->prepare("UPDATE giai_list SET phi_giai = ?, so_hiep = ? WHERE id = ?")->execute([$phi_giai_moi, $so_hiep_moi, $giai_id]);
+    $pdo->prepare("UPDATE giai_list SET phi_giai = ?, so_hiep = ? WHERE id = ?")->execute([$phi_giai_moi, $so_hiep_moi, $giai_id]);
 
-        // Hiển thị kết quả tính phí trước khi redirect
-        echo "<div class='container mt-4 alert alert-success'>";
-        echo "✅ Đã cập nhật thông tin giải.";
-        echo "<br>💰 Phí tổ chức mới: <strong>" . number_format($phi_giai_moi) . "đ</strong>";
-		echo "<br>💰 Ngày tổ chức mới: <strong>" . $ngay_to_chuc . "</strong>";
-		echo "<br>💰 Số lượng cần thủ: <strong>" . $so_luong_can_thu . "</strong>";
-        echo "<br><a href='my_giai_detail.php?id=$giai_id' class='btn btn-sm btn-primary mt-3'>➡️ Tiếp tục</a>";
-        echo "</div>";
-        exit;
-    }
+    // Hiển thị kết quả tính phí trước khi redirect
+    echo "<div class='container mt-4 alert alert-success'>";
+    echo "✅ Đã cập nhật thông tin giải.";
+    echo "<br>💰 Phí tổ chức mới: <strong>" . number_format($phi_giai_moi) . "đ</strong>";
+    echo "<br>💰 Ngày tổ chức mới: <strong>" . $ngay_to_chuc . "</strong>";
+    echo "<br>💰 Số lượng cần thủ: <strong>" . $so_luong_can_thu . "</strong>";
+    echo "<br><a href='my_giai_detail.php?id=$giai_id' class='btn btn-sm btn-primary mt-3'>➡️ Tiếp tục</a>";
+    echo "</div>";
+    exit;
+  }
 }
 
 // Load danh sách hình thức
@@ -127,16 +128,16 @@ $ds_hinh_thuc = $pdo->query("SELECT id, ten_hinh_thuc, so_hiep FROM giai_game_hi
       <input type="number" name="so_luong_can_thu" class="form-control" value="<?= $giai['so_luong_can_thu'] ?>" min="2" required>
     </div>
     <div class="mb-3">
-  <label class="form-label">Thời lượng 1 hiệp (phút)</label>
-  <select name="thoi_luong_phut_hiep" class="form-select" required>
-    <?php 
-      $options = [45, 60, 75, 90, 120, 150, 180, 240, 300, 360];
-      foreach ($options as $opt): 
-    ?>
-      <option value="<?= $opt ?>" <?= $opt == $giai['thoi_luong_phut_hiep'] ? 'selected' : '' ?>><?= $opt ?> phút</option>
-    <?php endforeach; ?>
-  </select>
-</div>
+      <label class="form-label">Thời lượng 1 hiệp (phút)</label>
+      <select name="thoi_luong_phut_hiep" class="form-select" required>
+        <?php
+        $options = [45, 60, 75, 90, 120, 150, 180, 240, 300, 360];
+        foreach ($options as $opt):
+        ?>
+          <option value="<?= $opt ?>" <?= $opt == $giai['thoi_luong_phut_hiep'] ? 'selected' : '' ?>><?= $opt ?> phút</option>
+        <?php endforeach; ?>
+      </select>
+    </div>
     <div class="mb-3">
       <label class="form-label">Tiền cược (đồng)</label>
       <input type="number" name="tien_cuoc" class="form-control" value="<?= $giai['tien_cuoc'] ?>" min="0">

@@ -49,38 +49,27 @@ $giai_list = $stmt->fetchAll();
         </thead>
         <tbody>
             <?php foreach ($giai_list as $index => $g): ?>
-            <tr>
-                <td>#<?= htmlspecialchars($g['id']) ?></td>
-                <td><?= htmlspecialchars($g['ten_giai']) ?></td>
-                <td><?= htmlspecialchars($g['ten_ho']) ?></td>
-                <td><?= date('d/m/Y', strtotime($g['ngay_to_chuc'])) ?></td>
-                <td><?= $g['so_luong_can_thu'] ?></td>
-                <td><?= htmlspecialchars($g['nickname'] ?: $g['full_name']) ?></td>
-                <td><?= htmlspecialchars($g['ten_hinh_thuc']) ?></td>
-                <td>
-                    <span class="badge bg-<?= 
-                        $g['status'] == 'chuyen_chu_ho_duyet' ? 'warning' :
-                        ($g['status'] == 'dang_mo_dang_ky' ? 'success' :
-						($g['status'] == 'dang_mo_dang_ky' ? 'success' :
-						($g['status'] == 'chot_xong_danh_sach' ? 'success' :
-						($g['status'] == 'dang_dau_hiep_1' ? 'success' :
-						($g['status'] == 'dang_dau_hiep_2' ? 'success' :
-						($g['status'] == 'dang_dau_hiep_3' ? 'success' :
-						($g['status'] == 'dang_dau_hiep_4' ? 'success' :
-						($g['status'] == 'so_ket_giai' ? 'success' :
-						($g['status'] == 'hoan_tat_giai' ? 'success' :
-						
-                        ($g['status'] == 'huy_giai' ? 'danger' : 'secondary'))))))))))
-                    ?>">
-                        <?= $g['status'] ?>
-                    </span>
-                </td>
-                <td>
-                    <a href="giai_can_duyet_detail.php?id=<?= $g['id'] ?>" class="btn btn-sm btn-primary">
-                        🔍 Chi tiết
-                    </a>
-                </td>
-            </tr>
+                <tr>
+                    <td>#<?= htmlspecialchars($g['id']) ?></td>
+                    <td><?= htmlspecialchars($g['ten_giai']) ?></td>
+                    <td><?= htmlspecialchars($g['ten_ho']) ?></td>
+                    <td><?= date('d/m/Y', strtotime($g['ngay_to_chuc'])) ?></td>
+                    <td><?= $g['so_luong_can_thu'] ?></td>
+                    <td><?= htmlspecialchars($g['nickname'] ?: $g['full_name']) ?></td>
+                    <td><?= htmlspecialchars($g['ten_hinh_thuc']) ?></td>
+                    <td>
+                        <span class="badge bg-<?=
+                                                $g['status'] == 'chuyen_chu_ho_duyet' ? 'warning' : ($g['status'] == 'dang_mo_dang_ky' ? 'success' : ($g['status'] == 'dang_mo_dang_ky' ? 'success' : ($g['status'] == 'chot_xong_danh_sach' ? 'success' : ($g['status'] == 'dang_dau_hiep_1' ? 'success' : ($g['status'] == 'dang_dau_hiep_2' ? 'success' : ($g['status'] == 'dang_dau_hiep_3' ? 'success' : ($g['status'] == 'dang_dau_hiep_4' ? 'success' : ($g['status'] == 'so_ket_giai' ? 'success' : ($g['status'] == 'hoan_tat_giai' ? 'success' : ($g['status'] == 'huy_giai' ? 'danger' : 'secondary'))))))))))
+                                                ?>">
+                            <?= $g['status'] ?>
+                        </span>
+                    </td>
+                    <td>
+                        <a href="giai_can_duyet_detail.php?id=<?= $g['id'] ?>" class="btn btn-sm btn-primary">
+                            🔍 Chi tiết
+                        </a>
+                    </td>
+                </tr>
             <?php endforeach ?>
         </tbody>
     </table>

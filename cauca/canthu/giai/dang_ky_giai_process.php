@@ -84,30 +84,30 @@ try {
     $stmt = $pdo->prepare("UPDATE users SET balance = balance - ? WHERE id = ?");
     $stmt->execute([$tien_cuoc, $user_id]);
 
-	// 4.3) Ghi logs số dư theo đúng schema user_balance_logs
-	$ref_no = 'giai_' . $giai_id; // theo convention trong bảng logs
-	$type   = 'giai_pay';         // enum hiện có: nap,rut,booking_*,game_*,giai_pay,...
-	$amount = $tien_cuoc;         // số tiền bị trừ (để dương, giống convention các dòng giai_pay)
+    // 4.3) Ghi logs số dư theo đúng schema user_balance_logs
+    $ref_no = 'giai_' . $giai_id; // theo convention trong bảng logs
+    $type   = 'giai_pay';         // enum hiện có: nap,rut,booking_*,game_*,giai_pay,...
+    $amount = $tien_cuoc;         // số tiền bị trừ (để dương, giống convention các dòng giai_pay)
 
-	$note = "Đăng ký online tham gia giải ID #{$giai_id} - {$giai['ten_giai']}. "
-		  . "Số dư sau: " . number_format($balance_after, 0, ',', '.') . "đ";
+    $note = "Đăng ký online tham gia giải ID #{$giai_id} - {$giai['ten_giai']}. "
+        . "Số dư sau: " . number_format($balance_after, 0, ',', '.') . "đ";
 
-	$stmt = $pdo->prepare("
+    $stmt = $pdo->prepare("
 		INSERT INTO user_balance_logs
 			(user_id, type, amount, note, created_at, ref_no, balance_before, balance_after)
 		VALUES
 			(?, ?, ?, ?, NOW(), ?, ?, ?)
 	");
-	$stmt->execute([
-		$user_id,
-		$type,
-		$amount,
-		$note,
-		$ref_no,
-		$balance_before,
-		$balance_after
-	]);
-	
+    $stmt->execute([
+        $user_id,
+        $type,
+        $amount,
+        $note,
+        $ref_no,
+        $balance_before,
+        $balance_after
+    ]);
+
     // 4B) Cộng cho creator (nếu có)
     $creator_id = (int)$giai['creator_id'];
     if ($creator_id > 0) {
@@ -126,34 +126,39 @@ try {
                 VALUES
                     (?, 'giai_received', ?, ?, ?, ?, ?, NOW())
             ");
-            $note_creator = "Cần thủ #{$user_id} đã tham gia Online giải #{$giai_id}, đã thanh toán phí. Số dư sau: " 
-           . number_format($balance_after_creator, 0, ',', '.') . " đ";
+            $note_creator = "Cần thủ #{$user_id} đã tham gia Online giải #{$giai_id}, đã thanh toán phí. Số dư sau: "
+                . number_format($balance_after_creator, 0, ',', '.') . " đ";
             $stmt->execute([
-                $creator_id, $amount, $note_creator, $ref_no, $balance_before_creator, $balance_after_creator
+                $creator_id,
+                $amount,
+                $note_creator,
+                $ref_no,
+                $balance_before_creator,
+                $balance_after_creator
             ]);
         }
     }
 
     // 4.4) Thêm vào giai_user: đã thanh toán ngay
-			// Lấy nickname 1 lần (nếu chưa có)
-			$st = $pdo->prepare("SELECT nickname, full_name, phone FROM users WHERE id = ?");
-			$st->execute([$user_id]);
-			$u = $st->fetch(PDO::FETCH_ASSOC);
+    // Lấy nickname 1 lần (nếu chưa có)
+    $st = $pdo->prepare("SELECT nickname, full_name, phone FROM users WHERE id = ?");
+    $st->execute([$user_id]);
+    $u = $st->fetch(PDO::FETCH_ASSOC);
 
-			// Fallback chống null/rỗng
-			$nickname = $u['nickname'];
-			if (!$nickname || trim($nickname) === '') {
-			  $nickname = $u['full_name'] && trim($u['full_name']) !== '' ? $u['full_name']
-						: ($u['phone'] ?: ('User_' . (int)$user_id));
-			}
+    // Fallback chống null/rỗng
+    $nickname = $u['nickname'];
+    if (!$nickname || trim($nickname) === '') {
+        $nickname = $u['full_name'] && trim($u['full_name']) !== '' ? $u['full_name']
+            : ($u['phone'] ?: ('User_' . (int)$user_id));
+    }
 
-			$stmt = $pdo->prepare("
+    $stmt = $pdo->prepare("
 			  INSERT INTO giai_user
 				(giai_id, user_id, nickname, trang_thai, payment_time, note, tong_diem, tong_kg, xep_hang, created_at)
 			  VALUES
 				(?, ?, ?, 'da_thanh_toan', NOW(), 'Tham gia online', 0, 0, 0, NOW())
 			");
-			$stmt->execute([$giai_id, $user_id, $nickname]);
+    $stmt->execute([$giai_id, $user_id, $nickname]);
 
     $pdo->commit();
 

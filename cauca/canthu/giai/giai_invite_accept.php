@@ -13,7 +13,8 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/../../../connect.php';
 require_once __DIR__ . '/../../../check_login.php';
 
-function back_link($msg = 'Có lỗi xảy ra.') {
+function back_link($msg = 'Có lỗi xảy ra.')
+{
     echo "<div style='padding:16px;font-family:system-ui'>
             <h3>$msg</h3>
             <a href='giai_list.php'>&laquo; Quay lại danh sách giải</a>
@@ -30,7 +31,8 @@ $user_id = (int)$_SESSION['user']['id'];
 $giai_id = (int)($_POST['giai_id'] ?? $_GET['giai_id'] ?? 0);
 if ($giai_id <= 0) back_link("Thiếu giai_id.");
 
-function redirect_to_topup($giai_id) {
+function redirect_to_topup($giai_id)
+{
     $return = urlencode("/cauca/canthu/giai/giai_invite_accept.php?giai_id={$giai_id}");
     // Redirect HTTP (fallback nếu header đã gửi)
     $url = "/wallet/topup.php?return_url={$return}";
@@ -110,11 +112,16 @@ try {
         VALUES
             (?, 'giai_pay', ?, ?, ?, ?, ?, NOW())
     ");
-    $note_user = "Chấp nhận mời & thanh toán giải #{$giai_id} ({$giai['ten_giai']}) - Số dư sau: " 
-           . number_format($balance_after_user, 0, ',', '.') . " đ";
+    $note_user = "Chấp nhận mời & thanh toán giải #{$giai_id} ({$giai['ten_giai']}) - Số dư sau: "
+        . number_format($balance_after_user, 0, ',', '.') . " đ";
     $ref_no = "giai_{$giai_id}";
     $stmt->execute([
-        $user_id, $amount, $note_user, $ref_no, $balance_before_user, $balance_after_user
+        $user_id,
+        $amount,
+        $note_user,
+        $ref_no,
+        $balance_before_user,
+        $balance_after_user
     ]);
 
     // 7) Cộng cho creator (nếu có)
@@ -135,16 +142,21 @@ try {
                 VALUES
                     (?, 'giai_received', ?, ?, ?, ?, ?, NOW())
             ");
-            $note_creator = "Cần thủ #{$user_id} chấp nhận lời mời tham gia giải #{$giai_id}, đã thanh toán phí!- Số dư sau: " 
-           . number_format($balance_after_creator, 0, ',', '.') . " đ";
+            $note_creator = "Cần thủ #{$user_id} chấp nhận lời mời tham gia giải #{$giai_id}, đã thanh toán phí!- Số dư sau: "
+                . number_format($balance_after_creator, 0, ',', '.') . " đ";
             $stmt->execute([
-                $creator_id, $amount, $note_creator, $ref_no, $balance_before_creator, $balance_after_creator
+                $creator_id,
+                $amount,
+                $note_creator,
+                $ref_no,
+                $balance_before_creator,
+                $balance_after_creator
             ]);
         }
     }
 
     // 8) Update trạng thái lời mời
-		$stmt = $pdo->prepare("
+    $stmt = $pdo->prepare("
 			UPDATE giai_user
 			SET trang_thai = 'da_thanh_toan',
 				note = CONCAT(COALESCE(note,''),' và tham gia')
@@ -164,7 +176,6 @@ try {
         echo "<div style='padding:16px'>Thành công. <a href='giai_list.php?msg=accepted_paid'>Quay lại</a></div>";
         exit;
     }
-
 } catch (Throwable $e) {
     if ($pdo->inTransaction()) $pdo->rollBack();
     back_link("Lỗi: " . htmlspecialchars($e->getMessage()));

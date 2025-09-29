@@ -78,5 +78,3 @@ $stmt->execute([$giai_id, $user_id, $nickname, $note]);
 
 header("Location: my_giai_detail_step_1.php?id=$giai_id");
 exit;
-
-

@@ -32,7 +32,8 @@ $stmt->execute([
 ]);
 $giai = $stmt->fetch();
 
-function get_giai_time_basic(PDO $pdo) {
+function get_giai_time_basic(PDO $pdo)
+{
     $sql = "SELECT config_value FROM admin_config_keys WHERE config_key = 'giai_time_basic' LIMIT 1";
     $stmt = $pdo->query($sql);
     $result = $stmt->fetch();
@@ -48,8 +49,8 @@ if (!$giai) {
 }
 
 // Tính tiền chủ hồ sẽ nhận
-$tien_chuho_nhan = $giai['so_luong_can_thu'] * $giai['gia_giai'] * $giai['so_hiep'] * $he_so_thoi_gian ;
-$tien_VAT = $tien_chuho_nhan/10 ;
+$tien_chuho_nhan = $giai['so_luong_can_thu'] * $giai['gia_giai'] * $giai['so_hiep'] * $he_so_thoi_gian;
+$tien_VAT = $tien_chuho_nhan / 10;
 $tien_chuho_nhan_VAT = $giai['phi_ho']
 ?>
 
@@ -64,7 +65,7 @@ $tien_chuho_nhan_VAT = $giai['phi_ho']
             <p><strong>Ngày tổ chức:</strong> <?= date('d/m/Y', strtotime($giai['ngay_to_chuc'])) ?> lúc <?= $giai['gio_bat_dau'] ?></p>
             <p><strong>Số cần thủ:</strong> <?= $giai['so_luong_can_thu'] ?> người</p>
             <p><strong>Hiệp - Bảng:</strong> <?= $giai['so_hiep'] ?> hiệp, <?= $giai['so_bang'] ?> bảng</p>
-			<p><strong>Thời gian 1 hiệp: </strong> <?= $giai['thoi_luong_phut_hiep'] ?> phút. Hệ số thời gian: = <?= $he_so_thoi_gian ?></p>
+            <p><strong>Thời gian 1 hiệp: </strong> <?= $giai['thoi_luong_phut_hiep'] ?> phút. Hệ số thời gian: = <?= $he_so_thoi_gian ?></p>
             <p><strong>Hình thức:</strong> <?= htmlspecialchars($giai['ten_hinh_thuc']) ?></p>
             <p><strong>Nguyên tắc:</strong> <?= nl2br($giai['nguyen_tac']) ?></p>
             <p><strong>Lượt tạo:</strong> <?= date('d/m/Y H:i', strtotime($giai['created_at'])) ?></p>
@@ -89,43 +90,43 @@ $tien_chuho_nhan_VAT = $giai['phi_ho']
         <div class="card-header bg-light fw-bold">💰 Số tiền chủ hồ sẽ nhận sau khi duyệt giải</div>
         <div class="card-body">
             <h6 class="text-success fw-bold">
-                <?= number_format($tien_chuho_nhan, 0, ',', '.') ?> đ = 
+                <?= number_format($tien_chuho_nhan, 0, ',', '.') ?> đ =
                 <small class="text-muted"> (<?= $giai['so_hiep'] ?> hiệp × <?= $giai['so_luong_can_thu'] ?> người × <?= number_format($giai['gia_giai']) ?> đ) × <?= $he_so_thoi_gian ?> (thời gian/hiệp) </small>
             </h6>
-			<h6 class="text-success fw-bold">
-             <?= number_format($tien_VAT, 0, ',', '.') ?> đ 
-				<small class="text-muted"> = Thuế VAT - 10% </small>
+            <h6 class="text-success fw-bold">
+                <?= number_format($tien_VAT, 0, ',', '.') ?> đ
+                <small class="text-muted"> = Thuế VAT - 10% </small>
             </h6>
-			<h5 class="text-success fw-bold">
-             <?= number_format($tien_chuho_nhan_VAT, 0, ',', '.') ?> đ 
-				<small class="text-muted"> = Tổng cộng chủ hồ nhận</small>
+            <h5 class="text-success fw-bold">
+                <?= number_format($tien_chuho_nhan_VAT, 0, ',', '.') ?> đ
+                <small class="text-muted"> = Tổng cộng chủ hồ nhận</small>
             </h5>
-			
+
             <p class="text-muted">Số tiền này sẽ được nhận ngay khi bạn duyệt giải này.</p>
         </div>
     </div>
 
     <!-- 4. Nút hành động -->
     <?php if ($giai['status'] === 'chuyen_chu_ho_duyet'): ?>
-<form action="giai_can_duyet_process.php" method="POST" class="d-flex gap-2">
-    <input type="hidden" name="giai_id" value="<?= $giai['id'] ?>">
+        <form action="giai_can_duyet_process.php" method="POST" class="d-flex gap-2">
+            <input type="hidden" name="giai_id" value="<?= $giai['id'] ?>">
 
-    <button type="submit"
-            name="action"
-            value="accept"
-            class="btn btn-success"
-            onclick="return confirm('✅ Bạn có chắc muốn DUYỆT giải này không?')">
-        ✅ Duyệt giải
-    </button>
+            <button type="submit"
+                name="action"
+                value="accept"
+                class="btn btn-success"
+                onclick="return confirm('✅ Bạn có chắc muốn DUYỆT giải này không?')">
+                ✅ Duyệt giải
+            </button>
 
-    <button type="submit"
-            name="action"
-            value="reject"
-            class="btn btn-danger"
-            onclick="return confirm('❌ Bạn có chắc muốn TỪ CHỐI giải này không?')">
-        ❌ Từ chối giải
-    </button>
-</form>
+            <button type="submit"
+                name="action"
+                value="reject"
+                class="btn btn-danger"
+                onclick="return confirm('❌ Bạn có chắc muốn TỪ CHỐI giải này không?')">
+                ❌ Từ chối giải
+            </button>
+        </form>
 
     <?php else: ?>
 
