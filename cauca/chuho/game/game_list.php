@@ -54,7 +54,7 @@ $sql = "
   WHERE g.creator_id = :uid
 ";
 if ($useDate) { $sql .= " AND g.ngay_to_chuc BETWEEN :fromAll AND :toAll "; }
-$sql .= $kwClause . " ORDER BY g.ngay_to_chuc ASC, g.gio_bat_dau ASC";
+$sql .= $kwClause . " ORDER BY g.ngay_to_chuc DESC, g.gio_bat_dau DESC, g.id DESC";
 
 $st = $pdo->prepare($sql);
 $params = array_merge(['uid'=>$uid], $paramsExtra);
@@ -86,14 +86,11 @@ foreach (['today','tomorrow','next7','next30','yesterday','prev7','prev30'] as $
 
 // Map trạng thái (tuỳ enum của bạn)
 $statusMap = [
-  'dang_cho_xac_nhan'   => ['Đang chờ xác nhận', 'bg-secondary'],
   'dang_mo_dang_ky'     => ['Đang mở đăng ký', 'bg-info'],
-  'chot_xong_danh_sach' => ['Đã chốt DS', 'bg-primary'],
-  'dang_dau_hiep_1'     => ['Đang đấu hiệp 1', 'bg-success'],
-  'so_ket_giai'         => ['Sơ kết', 'bg-warning'],
-  'hoan_tat_giai'       => ['Hoàn tất', 'bg-dark'],
+  'dang_thi_dau_game' => ['Đang thi đấu game', 'bg-warning'],
+  'so_ket_game'         => ['Sơ kết', 'bg-warning'],
+  'hoan_tat_game'       => ['Hoàn tất', 'bg-success'],
   'huy_giai'            => ['Hủy', 'bg-danger'],
-  'chuyen_chu_ho_duyet' => ['Chuyển duyệt', 'bg-warning'],
 ];
 
 function render_card($g, $statusMap, $tz) {
@@ -108,7 +105,7 @@ function render_card($g, $statusMap, $tz) {
     <div class="card h-100 border-0 shadow-sm card-hover">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-start mb-1">
-          <div class="fw-semibold"><?= h($g['ten_game']) ?></div>
+          <div class="fw-semibold">#<?= h($g['id']) ?>-<?= h($g['ten_game']) ?></div>
           <span class="badge <?= h($stClass) ?>"><?= h($stLabel) ?></span>
         </div>
         <div class="text-muted small mb-1">
@@ -135,8 +132,22 @@ function render_card($g, $statusMap, $tz) {
       </div>
       <div class="card-footer bg-white border-0 pt-0 pb-3">
         <div class="d-grid gap-2">
-          <a class="btn btn-outline-primary" href="/cauca/chuho/game/game_user_add.php?game_id=<?= (int)$g['id'] ?>">Thêm người bằng SĐT</a>
-          <a class="btn btn-primary" href="/cauca/chuho/game/game_manage.php?game_id=<?= (int)$g['id'] ?>">Quản lý game</a>
+<?php
+$status = $g['status'] ?? '';
+
+// Nút theo trạng thái
+if ($status === 'dang_mo_dang_ky'): ?>
+  <a class="btn btn-outline-primary" 
+     href="/cauca/chuho/game/game_user_add.php?game_id=<?= (int)$g['id'] ?>">
+    Thêm cần thủ vào Game
+  </a>
+<?php elseif (in_array($status, ['dang_thi_dau_game','so_ket_game','hoan_tat_game','huy_game'])): ?>
+  <a class="btn btn-primary" 
+     href="/cauca/chuho/game/game_detail.php?game_id=<?= (int)$g['id'] ?>">
+    Xem game
+  </a>
+<?php endif; ?>
+
         </div>
       </div>
     </div>

@@ -45,6 +45,7 @@ $errors = [];
 $notices = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $phone = trim($_POST['phone'] ?? '');
+
   // chuẩn hóa số: giữ số, bỏ ký tự khác
   $phone = preg_replace('/\D+/', '', $phone);
 
@@ -56,14 +57,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
       $pdo->beginTransaction();
 
-      // 2.1) Tìm user theo phone
+      // 2.1) Tìm user theo phone (UNIQUE trên cột phone) (theo schema users) :contentReference[oaicite:2]{index=2}
       $stFind = $pdo->prepare("SELECT id, phone, nickname, vai_tro, status FROM users WHERE phone = ? LIMIT 1");
       $stFind->execute([$phone]);
       $user = $stFind->fetch(PDO::FETCH_ASSOC);
 
       if (!$user) {
         // 2.2) Chưa có user -> tạo guest
-        $nickname     = 'guest_' . random_int(1000, 999999);
+        // schema users: có các cột phone, password, nickname, email, vai_tro (enum có 'guest'), status, review_status, ...  :contentReference[oaicite:3]{index=3}
+        $nickname = 'guest_' . random_int(1000, 999999);
         $passwordHash = password_hash('guest@' . $phone . '#' . random_int(100, 999), PASSWORD_BCRYPT);
 
         $insU = $pdo->prepare("
@@ -91,31 +93,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       } else {
         $user_id = (int)$user['id'];
       }
-
-      // 2.3) RÀNG BUỘC SỐ NGƯỜI THEO HÌNH THỨC / SO_LUONG_CAN_THU
-      $ht  = (int)($game['hinh_thuc_id'] ?? 0);
-      $max = (int)($game['so_luong_can_thu'] ?? 0);
-
-      // Với solo 2/3/4 người (IDs 13/14/15), nếu chưa set max trong DB thì map mặc định
-      if (in_array($ht, [13, 14, 15], true)) {
-        $mapMax = [13 => 2, 14 => 3, 15 => 4];
-        if ($max <= 0) {
-          $max = $mapMax[$ht];
+      // 2.3.b) Kiểm tra đủ số người cho các hình thức solo (IDs 13,14,15)
+      // Nếu là solo 2/3/4 người, không cho thêm nếu đã đủ.
+      $stGameInfo = $pdo->prepare("SELECT hinh_thuc_id, so_luong_can_thu FROM game_list WHERE id = ? LIMIT 1");
+      $stGameInfo->execute([$game_id]);
+      $ginfo = $stGameInfo->fetch(PDO::FETCH_ASSOC);
+      if ($ginfo) {
+        $ht = (int)$ginfo['hinh_thuc_id'];
+        if (in_array($ht, [13, 14, 15], true)) {
+          // Ưu tiên lấy số lượng tối đa từ cột so_luong_can_thu; nếu trống thì map theo hình thức
+          $mapMax = [13 => 2, 14 => 3, 15 => 4];
+          $max = (int)($ginfo['so_luong_can_thu'] ?? 0);
+          if ($max <= 0 && isset($mapMax[$ht])) {
+            $max = $mapMax[$ht];
+          }
+          if ($max > 0) {
+            $stCnt = $pdo->prepare("SELECT COUNT(*) FROM game_user WHERE game_id = ?");
+            $stCnt->execute([$game_id]);
+            $current = (int)$stCnt->fetchColumn();
+            if ($current >= $max) {
+              // Ném lỗi để đi vào catch và hiển thị thông báo
+              throw new RuntimeException("Game đã đủ số người (tối đa {$max}).");
+            }
+          }
         }
       }
-      // Với các hình thức khác: nếu `so_luong_can_thu` > 0 thì ràng buộc theo giá trị này
-      // (nếu =0 thì không giới hạn bằng biến này)
-
-      if ($max > 0) {
-        $stCnt = $pdo->prepare("SELECT COUNT(*) FROM game_user WHERE game_id = ? FOR UPDATE");
-        $stCnt->execute([$game_id]);
-        $current = (int)$stCnt->fetchColumn();
-        if ($current >= $max) {
-          throw new RuntimeException("Game đã đủ số người (tối đa {$max}).");
-        }
-      }
-
-      // 2.4) Kiểm tra đã có trong game_user chưa
+      // 2.3) Kiểm tra đã có trong game_user chưa
+      // Tùy schema game_user của bạn; dưới đây dùng các cột phổ biến: id, game_id, user_id, nickname, status, joined_at
       $stChk = $pdo->prepare("SELECT id FROM game_user WHERE game_id = ? AND user_id = ? LIMIT 1");
       $stChk->execute([$game_id, $user_id]);
       if ($stChk->fetch()) {
@@ -163,12 +167,6 @@ if (isset($_GET['remove_id'])) {
     exit;
   }
 }
-
-// nhận lỗi từ redirect
-if (isset($_GET['err']) && $_GET['err'] !== '') {
-  $errors[] = $_GET['err'];
-}
-
 ?>
 <!doctype html>
 <html lang="vi">
@@ -181,7 +179,7 @@ if (isset($_GET['err']) && $_GET['err'] !== '') {
   <style>
     .card-hover:hover {
       transform: translateY(-2px);
-      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .12);
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .12)
     }
 
     .table-sm td,
@@ -205,18 +203,7 @@ if (isset($_GET['err']) && $_GET['err'] !== '') {
     <div class="row g-3">
       <div class="col-lg-5">
         <div class="card border-0 shadow-sm card-hover">
-          <div class="card-header bg-white fw-semibold">
-            <?php
-            $currentCount = count($rows);
-            $ht = (int)($game['hinh_thuc_id'] ?? 0);
-            $max = (int)($game['so_luong_can_thu'] ?? 0);
-            if (in_array($ht, [13, 14, 15], true) && $max <= 0) {
-              $max = [13 => 2, 14 => 3, 15 => 4][$ht];
-            }
-            $quota = $max > 0 ? " | $currentCount/$max" : " | $currentCount";
-            ?>
-            Game #<?= (int)$game['id'] ?> | <?= h($game['ten_game']) ?> | <?= h($game['so_luong_can_thu']) ?> cần thủ<?= $quota ?>
-          </div>
+          <div class="card-header bg-white fw-semibold">Game #<?= (int)$game['id'] ?> | <?= h($game['ten_game']) ?> | <?= h($game['so_luong_can_thu']) ?> cần thủ</div>
           <div class="card-body">
             <div class="mb-2 small text-muted">
               Hồ: <span class="fw-semibold"><?= h($game['ten_ho']) ?></span> |
@@ -226,7 +213,7 @@ if (isset($_GET['err']) && $_GET['err'] !== '') {
 
             <?php if ($errors): ?>
               <div class="alert alert-danger">
-                <div class="fw-semibold mb-1">Lỗi chốt game</div>
+                <div class="fw-semibold mb-1">Không thể thêm người chơi:</div>
                 <ul class="mb-0"><?php foreach ($errors as $e) echo '<li>' . h($e) . '</li>'; ?></ul>
               </div>
             <?php endif; ?>
@@ -245,7 +232,7 @@ if (isset($_GET['err']) && $_GET['err'] !== '') {
               </div>
               <div class="form-text">
                 - Nếu số này chưa có tài khoản, hệ thống sẽ tạo <b>guest</b> tự động rồi thêm vào game.<br>
-                - Tránh nhập trùng: phone là duy nhất trong hệ thống (UNIQUE).
+                - Tránh nhập trùng: phone là duy nhất trong hệ thống (UNIQUE). :contentReference[oaicite:4]{index=4}
               </div>
             </form>
           </div>
@@ -302,13 +289,7 @@ if (isset($_GET['err']) && $_GET['err'] !== '') {
 
         <div class="d-flex gap-2 mt-3">
           <a class="btn btn-secondary" href="/cauca/chuho/game/game_create.php?ho_id=<?= (int)$game['ho_cau_id'] ?>">Quay lại</a>
-          <a
-            class="btn btn-primary"
-            href="/cauca/chuho/game/game_manage.php?game_id=<?= (int)$game['id'] ?>"
-            onclick="return confirm('Chốt game sẽ random vị trí luôn!\nBạn nên để đến lúc chơi game hãy chốt nhanh,\nhoặc tiếp tục bây giờ?');">
-            Chốt nhanh! Bóc thăm luôn vị trí?!
-          </a>
-
+          <a class="btn btn-primary" href="/cauca/chuho/game/game_manage.php?game_id=<?= (int)$game['id'] ?>">Chốt! Bóc thăm vị trí</a>
         </div>
       </div>
     </div>

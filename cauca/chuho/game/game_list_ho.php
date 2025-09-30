@@ -120,7 +120,7 @@ $badgeClass = fn($st) => match($st){
                 </a>
                 <a class="btn btn-outline-secondary"
                    href="/cauca/chuho/game/game_list.php?ho_id=<?= (int)$r['id'] ?>">
-                  Xem game của hồ
+                  Xem tất cả game
                 </a>
               </div>
             </div>

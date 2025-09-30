@@ -13,13 +13,18 @@ if ($gameId <= 0) {
 $seeded = (int)($_GET['seeded'] ?? 0);
 
 /* 1) Lấy thông tin game (dùng positional '?') */
-$st = $pdo->prepare("SELECT id, hinh_thuc_id, status FROM game_list WHERE id = ? LIMIT 1");
+$st = $pdo->prepare("SELECT id, hinh_thuc_id, status, ten_game, so_luong_can_thu FROM game_list WHERE id = ? LIMIT 1");
 $st->execute([$gameId]);
 $game = $st->fetch(PDO::FETCH_ASSOC);
+
+
 if (!$game) {
   http_response_code(404);
   exit('Game không tồn tại hoặc đã bị xóa.');
 }
+// Lấy tên game (null-safe)
+$ten_game = $game['ten_game'] ?? '';
+$so_luong_can_thu = (int)($game['so_luong_can_thu'] ?? 0);
 
 /* 2) Đếm người đang tham gia (positional all the way) */
 $valid = ['cho_xac_nhan', 'xac_nhan', 'da_thanh_toan'];
@@ -45,6 +50,20 @@ $list = $st->fetchAll(PDO::FETCH_ASSOC);
 $hasSeats = !empty($list) && (int)($list[0]['vi_tri_ngoi'] ?? 0) > 0;
 $manageUrl = "game_manage.php?game_id=" . $gameId;
 
+// Mapping trạng thái
+$statusLabels = [
+  'dang_mo_dang_ky'   => 'Đang mở đăng ký',
+  'dang_thi_dau_game' => 'Đang thi đấu game',
+  'so_ket_game'       => 'Sơ kết game',
+  'hoan_tat_game'     => 'Hoàn tất game',
+  'huy_game'         => 'Huỷ game',
+];
+
+// Lấy trạng thái gốc
+$currentStatus = $game['status'] ?? '';
+// Dịch sang tiếng Việt (nếu có)
+$label = $statusLabels[$currentStatus] ?? $currentStatus;
+
 ?>
 <!doctype html>
 <html lang="vi">
@@ -62,8 +81,9 @@ $manageUrl = "game_manage.php?game_id=" . $gameId;
 
     <div class="card border-0 shadow-lg">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <div class="fw-bold">Game #<?= htmlspecialchars($gameId) ?> • Hiệp 1 • Bảng A</div>
-        <div class="small text-muted">Người tham gia: <?= (int)$totalPlayers ?></div>
+        <div class="fw-bold">Game #<?= htmlspecialchars($gameId) ?> 
+		• Tên Game <?= htmlspecialchars($ten_game) ?> </div>
+        <div class="small text-muted">Người tham gia: <?= (int)$totalPlayers ?>/<?= htmlspecialchars($so_luong_can_thu) ?> cần thủ</div>
       </div>
       <div class="card-body">
 
@@ -87,10 +107,9 @@ $manageUrl = "game_manage.php?game_id=" . $gameId;
         <?php else: ?>
           <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
             <div>
-              <span class="badge text-bg-secondary me-2">Bảng A</span>
-              <span class="badge text-bg-secondary">Hiệp 1</span>
+              <span class="badge text-bg-secondary me-2">Trạng thái:</span>
               <?php if (!empty($game['status'])): ?>
-                <span class="badge text-bg-info ms-2">Trạng thái: <?= htmlspecialchars($game['status']) ?></span>
+                <span class="badge text-bg-info ms-2"> <?= htmlspecialchars($label) ?></span>
               <?php endif; ?>
             </div>
             <div class="d-flex gap-2">
@@ -162,18 +181,27 @@ $manageUrl = "game_manage.php?game_id=" . $gameId;
             </table>
           </div>
 
+		<div class="d-flex flex-wrap gap-2">
+		  <?php if ($game['status'] !== 'hoan_tat_game'): ?>
+			<button id="btn-bulk-save" class="btn btn-outline-primary">Cập nhật tất cả kg</button>
+			<button id="btn-update-rank" class="btn btn-warning">Xếp hạng lại</button>
+			<button id="btn-finish" class="btn btn-danger">Hoàn tất và đóng game</button>
+		  <?php else: ?>
+<a class="btn btn-success"
+   href="/cauca/chuho/game/copy_game_A.php?game_id=<?= (int)$game['id'] ?>"
+   onclick="return confirmCopy('A', this);">
+  (A) Copy game nhanh, giữ nguyên danh sách!
+</a>
 
-          <div class="d-flex flex-wrap gap-2">
-            <button id="btn-bulk-save" class="btn btn-outline-primary">
-              Cập nhật tất cả kg đang nhập
-            </button>
-            <button id="btn-update-rank" class="btn btn-warning">
-              Update xếp hạng (theo kg)
-            </button>
-            <button id="btn-finish" class="btn btn-danger">
-              Hoàn tất game
-            </button>
-          </div>
+<a class="btn btn-secondary"
+   href="/cauca/chuho/game/copy_game_B.php?game_id=<?= (int)$game['id'] ?>"
+   onclick="return confirmCopy('B', this);">
+  (B) Copy game chuẩn, thêm bớt danh sách!
+</a>
+		  <?php endif; ?>
+		</div>
+
+
         <?php endif; ?>
 
       </div>
@@ -282,8 +310,43 @@ $manageUrl = "game_manage.php?game_id=" . $gameId;
           }
         });
       }
+
+      // Copy game
+      const btnCopy = document.getElementById('btn-copy-game');
+      if (btnCopy) {
+        btnCopy.addEventListener('click', async () => {
+          if (!confirm('Xác nhận copy game này để tạo game mới?')) return;
+          const data = await postJSON('game_copy.php', {
+            game_id: gameId
+          });
+          if (data?.ok) {
+            alert('Đã copy game thành công! Game mới ID: ' + data.new_game_id);
+            // Redirect to new game
+            if (data.new_game_id) {
+              window.location.href = 'game_detail.php?game_id=' + data.new_game_id;
+            }
+          } else {
+            alert(data?.error || 'Không thể copy game.');
+          }
+        });
+      }
     })();
   </script>
+  
+<script>
+function confirmCopy(type, el) {
+  var msg = (type === 'A')
+    ? "Tạo game mới nhanh gọn, danh sách người chơi giữ nguyên, nếu số cần thủ > 3 ==> 'KHÔNG trùng biên', tiếp tục?"
+    : "Lấy danh sách cũ, thêm bớt cần thủ và random lại vị trí như game mới, tiếp tục?";
+  if (!confirm(msg)) return false;
+
+  // Chống click lặp
+  el.classList.add('disabled');
+  el.setAttribute('aria-disabled', 'true');
+  el.textContent = el.textContent.trim() + ' — Đang tạo...';
+  return true; // cho phép chuyển trang
+}
+</script>
 
 </body>
 

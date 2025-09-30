@@ -162,16 +162,14 @@ if (!$ho) {
   exit;
 }
 
-
 // Hình thức game (1 bảng, 1 hiệp)
 $sqlHinhThuc = "
-  SELECT id, ten_hinh_thuc, so_nguoi_min, so_nguoi_max
+  SELECT id, ten_hinh_thuc
   FROM giai_game_hinh_thuc
   WHERE hinh_thuc = 'game' AND so_bang = 1 AND so_hiep = 1
   ORDER BY id ASC
 ";
 $htRows = $pdo->query($sqlHinhThuc)->fetchAll(PDO::FETCH_ASSOC);
-
 
 // ----------------- Xử lý POST: tạo game -----------------
 $errors = [];
@@ -188,55 +186,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if ($ten_game === '') $errors[] = "Vui lòng nhập tên game.";
 
-  // 1) Lấy label + min/max cho hình thức được chọn
   $htLabel = null;
-  $htMin = null;
-  $htMax = null;
-  foreach ($htRows as $htRow) {
-    if ((int)$htRow['id'] === $hinh_thuc) {
-      $htLabel = (string)$htRow['ten_hinh_thuc'];
-      $htMin   = isset($htRow['so_nguoi_min']) ? (int)$htRow['so_nguoi_min'] : null;
-      $htMax   = isset($htRow['so_nguoi_max']) ? (int)$htRow['so_nguoi_max'] : null;
-      break;
-    }
+  foreach ($htRows as $ht) if ((int)$ht['id'] === $hinh_thuc) {
+    $htLabel = (string)$ht['ten_hinh_thuc'];
+    break;
   }
   if (!$htLabel) $errors[] = "Hình thức game không hợp lệ.";
 
-  // 2) Xác định số người CUỐI CÙNG (trước khi check)
+  // so_luong_can_thu
   $so_nguoi_final = 0;
   if ($htLabel) {
     $solo = parse_solo_from_label($htLabel); // 2|3|4 hoặc null
-    if ($solo !== null) {
-      // Solo 2/3/4: khóa số người đúng solo, chống sửa form
-      $so_nguoi_final = (int)$solo;
-    } else {
-      if ($so_nguoi <= 0) {
-        $errors[] = "Vui lòng nhập số lượng cần thủ cho hình thức này.";
-      } else {
-        $so_nguoi_final = (int)$so_nguoi;
-      }
+    if ($solo !== null) $so_nguoi_final = $solo;
+    else {
+      if ($so_nguoi <= 0) $errors[] = "Vui lòng nhập số lượng cần thủ cho hình thức này.";
+      else $so_nguoi_final = $so_nguoi;
     }
   }
 
-  // 3) Check trong khoảng min-max của hình thức
-  if ($htLabel && $so_nguoi_final > 0 && $htMin !== null && $htMax !== null && ($htMin > 0 || $htMax > 0)) {
-    if ($so_nguoi_final < $htMin || $so_nguoi_final > $htMax) {
-      $errors[] = "Số cần thủ phải nằm trong khoảng {$htMin} – {$htMax} cho hình thức đã chọn.";
-    }
-  }
-
-  // 4) Check không vượt quá số chỗ ngồi của hồ
-  $choNgoi = (int)($ho['so_cho_ngoi'] ?? 0);
-  if ($choNgoi > 0 && $so_nguoi_final > $choNgoi) {
-    $errors[] = "Số cần thủ ($so_nguoi_final) vượt quá số chỗ ngồi của hồ ({$choNgoi}).";
-  }
-
-  // 5) Validate thời lượng / ngày / giờ
   if (!in_array($thoi_luong, $allowedDurations, true)) $errors[] = "Thời lượng 1 hiệp không hợp lệ.";
 
   $tz = new DateTimeZone('Asia/Ho_Chi_Minh');
   $today = new DateTime('today', $tz);
-
   $dNgay = DateTime::createFromFormat('Y-m-d', $ngay_tc, $tz);
   if (!$dNgay) $errors[] = "Ngày tổ chức không hợp lệ (YYYY-MM-DD).";
   else {
@@ -247,7 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $dGio = DateTime::createFromFormat('H:i', $gio_bd, $tz);
   if (!$dGio) $errors[] = "Giờ bắt đầu không hợp lệ (HH:MM).";
 
-  // 6) TÍNH PHÍ HỒ & PHÍ GAME
+  // ====== TÍNH PHÍ HỒ & PHÍ GAME ======
   $phi_ho = 0;
   $phi_game = 0;
   if (!$errors) {
@@ -257,8 +228,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $time_basic  = (int)  ($cfg['game_time_basic'] ?? 60);  // phút
     if ($time_basic <= 0) $time_basic = 60;
 
-    $he_so_tg    = $thoi_luong / $time_basic;
-    $vat_rate    = max(0.0, $vat_percent / 100.0);
+    $he_so_tg   = $thoi_luong / $time_basic;
+    $vat_rate   = max(0.0, $vat_percent / 100.0);
     $gia_game_ho = (float)($ho['gia_game'] ?? 0);
 
     // Phi_ho = (số người * giá_game_hồ * hệ_số_thời_gian) + VAT
@@ -269,11 +240,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $base_fee_user = $so_nguoi_final * $fee_user;
     $phi_quantri   = (int) round($base_fee_user * (1 + $vat_rate));
 
-    // Phi_game = Phi_ho + Phí quản trị (đều đã gồm VAT)
+    // Phi_game = Phi_ho + Phí quản trị (đều đã gồm VAT theo yêu cầu)
     $phi_game = $phi_ho + $phi_quantri;
   }
 
-  // 7) Lưu game nếu mọi thứ OK
   if (!$errors) {
     $closeAt = clone $dNgay;
     $closeAt->modify('-1 day')->setTime(23, 59, 59);
@@ -316,7 +286,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   }
 }
-
 ?>
 <!doctype html>
 <html lang="vi">
@@ -374,15 +343,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $solo  = parse_solo_from_label($label);
                     $sel   = (isset($_POST['hinh_thuc_id']) && (int)$_POST['hinh_thuc_id'] === (int)$ht['id']) ? 'selected' : '';
                   ?>
-<option
-  value="<?= (int)$ht['id'] ?>"
-  data-solo="<?= $solo !== null ? (int)$solo : 0 ?>"
-  data-min="<?= (int)$ht['so_nguoi_min'] ?>"
-  data-max="<?= (int)$ht['so_nguoi_max'] ?>"
-  <?= $sel ?>
->
-  <?= h($label) ?>
-</option>
+                    <option value="<?= (int)$ht['id'] ?>" data-solo="<?= $solo !== null ? (int)$solo : 0 ?>" <?= $sel ?>>
+                      <?= h($label) ?>
+                    </option>
                   <?php endforeach; ?>
                 </select>
                 <div class="form-text">Solo 2/3/4 người sẽ tự tính số cần thủ; hình thức khác bắt buộc nhập số lượng.</div>
