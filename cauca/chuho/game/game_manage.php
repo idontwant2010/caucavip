@@ -67,7 +67,7 @@ try {
   // Kiểm tra trong khoảng min-max (nếu có cấu hình > 0)
   if (($htMin > 0 && $N < $htMin) || ($htMax > 0 && $N > $htMax)) {
     $pdo->rollBack();
-    $err = "Số cần thủ hiện tại ($N) không hợp lệ cho hình thức này. Yêu cầu: " .
+    $err = "Số cần thủ đang tham gia là: $N người. Hình thức này yêu cầu: " .
       ($isSolo ? "$htMin người (solo)" : "{$htMin}–{$htMax} người") . ".";
     header("Location: game_user_add.php?game_id=" . $gameId . "&err=" . urlencode($err));
     exit;
@@ -117,7 +117,7 @@ try {
   // Chỉ cập nhật trạng thái nếu đang ở giai đoạn mở/chuẩn bị
   $stUp = $pdo->prepare("
     UPDATE game_list
-    SET status = 'dang_thi_dau_game'
+    SET status = 'da_chot_danh_sach'
     WHERE id = :gid AND status IN ('dang_mo_dang_ky','cho_xac_nhan')
   ");
   $stUp->execute([':gid' => $gameId]);

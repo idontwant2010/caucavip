@@ -20,7 +20,7 @@ try {
     exit('Game nguồn không tồn tại.');
   }
 
-  // 2) Tạo game mới: status = dang_thi_dau_game
+  // 2) Tạo game mới: status = da_chot_danh_sach
   $ins = $pdo->prepare("
     INSERT INTO game_list
       (ho_cau_id, chuho_id, creator_id, hinh_thuc_id, ten_game,
@@ -32,7 +32,7 @@ try {
       (:ho_cau_id, :chuho_id, :creator_id, :hinh_thuc_id, :ten_game,
        :so_luong_can_thu, :so_bang, :so_hiep, :thoi_luong_phut_hiep,
        :ngay_to_chuc, :gio_bat_dau, :thoi_gian_dong_dang_ky,
-       :tien_cuoc, :phi_game, :phi_ho, :luat_choi, 'dang_thi_dau_game',
+       :tien_cuoc, :phi_game, :phi_ho, :luat_choi, 'da_chot_danh_sach',
        NOW(), :min_user_exp, :min_user_level, :quy_tac_xoay_tu_chon)
   ");
   $ins->execute([
@@ -63,7 +63,7 @@ try {
     SELECT user_id, nickname, trang_thai, note, vi_tri_ngoi, is_bien
     FROM game_user
     WHERE game_id = :gid
-    ORDER BY created_at ASC
+    ORDER BY vi_tri_ngoi ASC
   ");
   $gu->execute([':gid' => $srcId]);
   $rows = $gu->fetchAll(PDO::FETCH_ASSOC);
@@ -92,11 +92,11 @@ try {
     ]);
   }
 
-  // 5) Random chỗ ngồi & “không trùng biên” (N ≥ 43)
+  // 5) Random chỗ ngồi & “không trùng biên” (N ≥ 4)
   $N = count($rows);
 
   // Lấy danh sách user_id mới theo thứ tự tạo
-  $getNewUsers = $pdo->prepare("SELECT user_id FROM game_user WHERE game_id = :gid ORDER BY created_at ASC");
+  $getNewUsers = $pdo->prepare("SELECT user_id FROM game_user WHERE game_id = :gid ORDER BY vi_tri_ngoi ASC");
   $getNewUsers->execute([':gid' => $newId]);
   $uids = array_map('intval', $getNewUsers->fetchAll(PDO::FETCH_COLUMN));
 
@@ -124,10 +124,10 @@ try {
     return $uids; // không đủ người để tránh biên
   };
 
-  if ($N >= 43) {
+  if ($N >= 4) {
     $uids = $placeEdges($uids, $edgeOld, $N);
   } else {
-    // N < 43: vẫn cố tránh nếu được (không bắt buộc)
+    // N < 4: vẫn cố tránh nếu được (không bắt buộc)
     $try = $placeEdges($uids, $edgeOld, $N);
     $uids = $try;
   }

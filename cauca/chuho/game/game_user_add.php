@@ -305,8 +305,8 @@ if (isset($_GET['err']) && $_GET['err'] !== '') {
           <a
             class="btn btn-primary"
             href="/cauca/chuho/game/game_manage.php?game_id=<?= (int)$game['id'] ?>"
-            onclick="return confirm('Chốt game sẽ random vị trí luôn!\nBạn nên để đến lúc chơi game hãy chốt nhanh,\nhoặc tiếp tục bây giờ?');">
-            Chốt nhanh! Bóc thăm luôn vị trí?!
+            onclick="return confirm('Chốt danh sách game!\nBạn sẽ thanh toán phí game cho chủ hồ,\nBạn muốn tiếp tục chốt danh sách?');">
+            Chốt danh sách --> chuẩn bị bóc thăm!
           </a>
 
         </div>

@@ -19,3 +19,6 @@ Kết nối thất bại. Vui lòng kiểm tra log server.[2025-09-30 16:29:04] 
 [2025-09-30 22:29:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
 [DEBUG] Found 0 candidate(s)
 [2025-09-30 22:29:04] No overdue online bookings.
+[2025-09-30 23:29:04] Start cron_cancel_online_bookings (grace=60m, limit=200, dry=0)
+[DEBUG] Found 0 candidate(s)
+[2025-09-30 23:29:04] No overdue online bookings.

@@ -114,3 +114,11 @@ Kết nối thất bại. Vui lòng kiểm tra log server.[2025-09-30 16:09:53] 
 [2025-09-30 23:09:53] Canceled pending deposits: 0
 [2025-09-30 23:09:53] Pending deposits remaining: 0
 [2025-09-30 23:09:53] Done
+[2025-09-30 23:24:52] Start cancel_expired_deposits (expire=30m)
+[2025-09-30 23:24:52] Canceled pending deposits: 0
+[2025-09-30 23:24:52] Pending deposits remaining: 0
+[2025-09-30 23:24:52] Done
+[2025-09-30 23:43:52] Start cancel_expired_deposits (expire=30m)
+[2025-09-30 23:43:52] Canceled pending deposits: 0
+[2025-09-30 23:43:52] Pending deposits remaining: 0
+[2025-09-30 23:43:52] Done

@@ -34,7 +34,7 @@ $st->execute(array_merge([$gameId], $valid));
 $totalPlayers = (int)$st->fetchColumn();
 
 /* 3) Lấy danh sách ghế từ game_user (KHÔNG dùng :gid, dùng '?') */
-$sql = "SELECT gu.user_id, gu.vi_tri_ngoi, gu.is_bien,
+$sql = "SELECT gu.user_id, gu.vi_tri_ngoi, gu.is_bien, gu.created_at,
                COALESCE(gu.tong_kg,0)  AS tong_kg,
                COALESCE(gu.xep_hang,0) AS xep_hang,
                u.full_name, u.phone, COALESCE(gu.nickname,u.nickname) AS nickname
@@ -47,20 +47,74 @@ $st = $pdo->prepare($sql);
 $st->execute(array_merge([$gameId], $valid));
 $list = $st->fetchAll(PDO::FETCH_ASSOC);
 
+/**
+ * Trả ra mảng mới được sắp xếp theo full_name ASC
+ *
+ * @param array $list Mảng gốc (ví dụ $list từ DB)
+ * @return array Mảng mới đã sắp xếp
+ */
+function sortListByNameAsc(array $list): array
+{
+  $list_a = $list; // copy giữ nguyên dữ liệu gốc
+  usort($list_a, function ($a, $b) {
+    return strcmp($a['created_at'], $b['full_name']);
+  });
+  return $list_a;
+}
+
+// Lấy trạng thái gốc
+$currentStatus = $game['status'] ?? '';
+$status = $game['status'] ?? '';
+$showSeat = in_array($status, ['dang_thi_dau_game', 'so_ket_game', 'hoan_tat_game']);
+
+// Nếu đã chốt danh sách thì sort theo full_name ASC
+if ($status === 'da_chot_danh_sach') {
+  $list_a = sortListByNameAsc($list);
+  $renderList = $list_a;
+} else {
+  // Còn đang thi đấu game thì giữ nguyên list gốc
+  $renderList = $list;
+}
+
+
 $hasSeats = !empty($list) && (int)($list[0]['vi_tri_ngoi'] ?? 0) > 0;
 $manageUrl = "game_manage.php?game_id=" . $gameId;
 
 // Mapping trạng thái
 $statusLabels = [
   'dang_mo_dang_ky'   => 'Đang mở đăng ký',
+  'da_chot_danh_sach' => 'Đã chốt danh sách game',
   'dang_thi_dau_game' => 'Đang thi đấu game',
   'so_ket_game'       => 'Sơ kết game',
   'hoan_tat_game'     => 'Hoàn tất game',
-  'huy_game'         => 'Huỷ game',
+  'huy_game'          => 'Huỷ game',
+
+];
+//hiển thị hướng dẫn
+$current = $game['status'] ?? '';
+$guide = [
+  'dang_mo_dang_ky' => [
+    'title' => 'Đang mở đăng ký',
+    'desc'  => 'Bạn có thể thêm/bớt danh sách cần thủ.'
+  ],
+  'da_chot_danh_sach' => [
+    'title' => 'Đã chốt danh sách',
+    'desc'  => 'Bạn có thể random vị trí ngẫu nhiên và bắt đầu thi đấu (Show seat).'
+  ],
+  'dang_thi_dau_game' => [
+    'title' => 'Đang thi đấu game',
+    'desc'  => 'Bạn có thể cập nhật kg từng người hoặc tất cả, xếp hạng, và sơ kết/tổng kết.'
+  ],
+  'so_ket_game' => [
+    'title' => 'Sơ kết game',
+    'desc'  => 'Bạn có thể điều chỉnh kg, xếp hạng lại, và chuẩn bị đóng game.'
+  ],
+  'hoan_tat_game' => [
+    'title' => 'Hoàn thành game',
+    'desc'  => 'Bạn có thể tạo game mới nhanh (giữ nguyên danh sách – Copy A) hoặc tạo game mới chuẩn (lấy danh sách hiện tại rồi thêm/bớt – Copy B).'
+  ],
 ];
 
-// Lấy trạng thái gốc
-$currentStatus = $game['status'] ?? '';
 // Dịch sang tiếng Việt (nếu có)
 $label = $statusLabels[$currentStatus] ?? $currentStatus;
 
@@ -81,8 +135,8 @@ $label = $statusLabels[$currentStatus] ?? $currentStatus;
 
     <div class="card border-0 shadow-lg">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <div class="fw-bold">Game #<?= htmlspecialchars($gameId) ?> 
-		• Tên Game <?= htmlspecialchars($ten_game) ?> </div>
+        <div class="fw-bold">Game #<?= htmlspecialchars($gameId) ?>
+          • Tên Game <?= htmlspecialchars($ten_game) ?> </div>
         <div class="small text-muted">Người tham gia: <?= (int)$totalPlayers ?>/<?= htmlspecialchars($so_luong_can_thu) ?> cần thủ</div>
       </div>
       <div class="card-body">
@@ -122,10 +176,11 @@ $label = $statusLabels[$currentStatus] ?? $currentStatus;
             <table class="table table-sm table-dark table-striped align-middle mb-3">
               <thead>
                 <tr>
-                  <th class="text-nowrap">Ghế</th>
+                  <th class="text-nowrap">#</th>
                   <th>Người chơi</th>
                   <th class="text-nowrap">Nickname</th>
                   <th class="text-nowrap">Điện thoại</th>
+                  <th class="text-nowrap">Vị trí</th>
                   <th class="text-nowrap text-center">Ghi chú</th>
                   <th class="text-nowrap text-end">Tổng kg</th>
                   <th class="text-nowrap text-center">Hạng</th>
@@ -134,28 +189,32 @@ $label = $statusLabels[$currentStatus] ?? $currentStatus;
               </thead>
               <tbody>
                 <?php
-                $N = count($list ?? []);
-                foreach ($list as $row):
-                  $seat  = (int)$row['vi_tri_ngoi'];
+                $N = count($renderList ?? []);
+                $i = 1;
+                foreach ($renderList as $row):
+                  $seat   = (int)$row['vi_tri_ngoi'];
                   $isBien = (int)$row['is_bien'] === 1;
-                  $uid   = (int)$row['user_id'];
-                  $kg    = (float)$row['tong_kg'];
-                  $rank  = (int)($row['xep_hang'] ?? 0);
+                  $uid    = (int)$row['user_id'];
+                  $kg     = (float)$row['tong_kg'];
+                  $rank   = (int)($row['xep_hang'] ?? 0);
                 ?>
                   <tr data-uid="<?= $uid ?>">
-                    <td class="fw-semibold"><?= $seat ?></td>
+                    <td><?= $i++ ?></td> <!-- Hiển thị số thứ tự -->
                     <td><?= htmlspecialchars($row['full_name'] ?? '—') ?></td>
                     <td><?= htmlspecialchars($row['nickname'] ?? '—') ?></td>
                     <td class="text-nowrap"><?= htmlspecialchars($row['phone'] ?? '') ?></td>
+                    <td class="fw-semibold">
+                      <?= $showSeat ? $seat : 'chờ random' ?>
+                    </td>
                     <td class="text-center">
-                      <?php if ($isBien): ?>
+                      <?php if ($showSeat && $isBien): ?>
                         <span class="badge text-bg-warning">BIÊN</span>
                       <?php else: ?>
                         <span class="text-muted">—</span>
                       <?php endif; ?>
                     </td>
 
-                    <!-- Tổng kg hiển thị -->
+                    <!-- Tổng kg -->
                     <td class="text-end">
                       <span class="kg-display"><?= number_format($kg, 2) ?></span>
                     </td>
@@ -165,7 +224,7 @@ $label = $statusLabels[$currentStatus] ?? $currentStatus;
                       <?= $rank > 0 ? $rank : '—' ?>
                     </td>
 
-                    <!-- Ô nhập & nút cập nhật kg -->
+                    <!-- Input cập nhật kg -->
                     <td class="text-center" style="min-width:180px;">
                       <div class="d-flex gap-2 justify-content-end">
                         <input type="number" step="0.01" min="0"
@@ -181,31 +240,90 @@ $label = $statusLabels[$currentStatus] ?? $currentStatus;
             </table>
           </div>
 
-		<div class="d-flex flex-wrap gap-2">
-		  <?php if ($game['status'] !== 'hoan_tat_game'): ?>
-			<button id="btn-bulk-save" class="btn btn-outline-primary">Cập nhật tất cả kg</button>
-			<button id="btn-update-rank" class="btn btn-warning">Xếp hạng lại</button>
-			<button id="btn-finish" class="btn btn-danger">Hoàn tất và đóng game</button>
-		  <?php else: ?>
-<a class="btn btn-success"
-   href="/cauca/chuho/game/copy_game_A.php?game_id=<?= (int)$game['id'] ?>"
-   onclick="return confirmCopy('A', this);">
-  (A) Copy game nhanh, giữ nguyên danh sách!
-</a>
+          <div class="d-flex flex-wrap gap-2">
+            <?php if (($game['status'] ?? '') === 'da_chot_danh_sach'): ?>
+              <a class="btn btn-primary"
+                href="/cauca/chuho/game/show_seat.php?game_id=<?= (int)$game['id'] ?>"
+                onclick="return confirm('Bóc thăm vị trí & chuyển sang trạng thái đang thi đấu?\nTiếp tục?');">
+                Bóc Thăm vị trí ==> bắt đầu câu game
+              </a>
+            <?php endif; ?>
+            <?php if ($game['status'] === 'hoan_tat_game'): ?>
+              <a class="btn btn-success"
+                href="/cauca/chuho/game/copy_game_A.php?game_id=<?= (int)$game['id'] ?>"
+                onclick="return confirmCopy('A', this);">
+                (A) Giữ danh sách- Copy game nhanh!
+              </a>
+              <a class="btn btn-secondary"
+                href="/cauca/chuho/game/copy_game_B.php?game_id=<?= (int)$game['id'] ?>"
+                onclick="return confirmCopy('B', this);">
+                (B) Sửa danh sách - Copy game chuẩn!
+              </a>
+            <?php endif; ?>
+            <?php if (in_array($game['status'], ['dang_thi_dau_game', 'so_ket_game'])): ?>
+              <button id="btn-bulk-save" class="btn btn-outline-primary">Cập nhật tất cả kg</button>
+              <button id="btn-update-rank" class="btn btn-warning">Sơ kết - Xếp hạng </button>
+              <button id="btn-finish" class="btn btn-danger">Đóng game - Hoàn thành Game</button>
+            <?php else: ?>
+              <!-- Có thể hiển thị thông báo khác nếu muốn 
+				<span class="text-muted">Game đã hoàn tất, không thể chỉnh sửa.</span>  -->
+            <?php endif; ?>
+          </div>
 
-<a class="btn btn-secondary"
-   href="/cauca/chuho/game/copy_game_B.php?game_id=<?= (int)$game['id'] ?>"
-   onclick="return confirmCopy('B', this);">
-  (B) Copy game chuẩn, thêm bớt danh sách!
-</a>
-		  <?php endif; ?>
-		</div>
+          <?php
+          $current = $game['status'] ?? '';
 
+          $guide = [
+            'dang_mo_dang_ky' => [
+              'title' => 'Đang mở đăng ký',
+              'desc'  => 'Bạn có thể thêm/bớt danh sách cần thủ.'
+            ],
+            'da_chot_danh_sach' => [
+              'title' => 'Đã chốt danh sách',
+              'desc'  => 'Bạn có thể random vị trí ngẫu nhiên và bắt đầu thi đấu (Show seat).'
+            ],
+            'dang_thi_dau_game' => [
+              'title' => 'Đang thi đấu game',
+              'desc'  => 'Bạn có thể cập nhật kg từng người hoặc tất cả, xếp hạng, và sơ kết/tổng kết.'
+            ],
+            'so_ket_game' => [
+              'title' => 'Sơ kết game',
+              'desc'  => 'Bạn có thể điều chỉnh kg, xếp hạng lại theo thành tích, và có thể đóng game này để mở game mới dựa trên danh sách cũ.'
+            ],
+            'hoan_tat_game' => [
+              'title' => 'Hoàn thành game',
+              'desc'  => 'Bạn có thể tạo game mới nhanh, giữ nguyên danh sách cần thủ – Copy A || Hoặc tạo game mới chuẩn, lấy danh sách hiện tại rồi chỉnh sửa thêm/bớt cần thủ – Copy B).'
+            ],
+          ];
+          ?>
 
-        <?php endif; ?>
-
-      </div>
     </div>
+        <?php endif; ?>
+      </div>
+          <div class="card mt-3">
+            <div class="card-header fw-semibold">Hướng dẫn trạng thái game</div>
+            <div class="card-body py-2">
+              <ul class="list-group list-group-flush">
+                <?php foreach ($guide as $key => $g):
+                  $isCurrent = ($key === $current);
+                ?>
+                  <li class="list-group-item d-flex justify-content-between align-items-start <?= $isCurrent ? 'active text-white' : '' ?>">
+                    <div class="me-2">
+                      <div class="fw-semibold"><?= htmlspecialchars($g['title']) ?></div>
+                      <div class="<?= $isCurrent ? 'text-white-50' : 'text-muted' ?>">
+                        <?= htmlspecialchars($g['desc']) ?>
+                      </div>
+                    </div>
+                    <?php if ($isCurrent): ?>
+                      <span class="badge bg-warning text-dark">Hiện tại</span>
+                    <?php endif; ?>
+                  </li>
+                <?php endforeach; ?>
+              </ul>
+            </div>
+          </div>	  
+	  
+
   </div>
 
   <script>
@@ -332,21 +450,23 @@ $label = $statusLabels[$currentStatus] ?? $currentStatus;
       }
     })();
   </script>
-  
-<script>
-function confirmCopy(type, el) {
-  var msg = (type === 'A')
-    ? "Tạo game mới nhanh gọn, danh sách người chơi giữ nguyên, nếu số cần thủ > 3 ==> 'KHÔNG trùng biên', tiếp tục?"
-    : "Lấy danh sách cũ, thêm bớt cần thủ và random lại vị trí như game mới, tiếp tục?";
-  if (!confirm(msg)) return false;
 
-  // Chống click lặp
-  el.classList.add('disabled');
-  el.setAttribute('aria-disabled', 'true');
-  el.textContent = el.textContent.trim() + ' — Đang tạo...';
-  return true; // cho phép chuyển trang
-}
-</script>
+  <script>
+    function confirmCopy(type, el) {
+      var msg = (type === 'A') ?
+        "Tạo game mới nhanh gọn, danh sách người chơi giữ nguyên, nếu số cần thủ > 3 ==> 'KHÔNG trùng biên', tiếp tục?" :
+        "Lấy danh sách cũ, thêm bớt cần thủ và random lại vị trí như game mới, tiếp tục?";
+      if (!confirm(msg)) return false;
+
+      // Chống click lặp
+      el.classList.add('disabled');
+      el.setAttribute('aria-disabled', 'true');
+      el.textContent = el.textContent.trim() + ' — Đang tạo...';
+      return true; // cho phép chuyển trang
+    }
+  </script>
+
+
 
 </body>
 
